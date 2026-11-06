@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pengaturan Pemilihan
+    match /pengaturan/{docId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Paslon (Kandidat)
+    match /paslon/{paslonId} {
+      allow read: if true;
+      allow create, update, delete: if true;
+    }
+
+    // Pemilih (DPT Siswa & Guru)
+    match /pemilih/{pemilihId} {
+      allow read: if true;
+      allow create, update, delete: if true;
+    }
+
+    // Suara Masuk (Audit Trail Anonim)
+    match /suara/{suaraId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false; // Surat suara yang sudah masuk tidak boleh diubah atau dihapus
+    }
+
+    // Log Aktivitas
+    match /logs/{logId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+  }
+}

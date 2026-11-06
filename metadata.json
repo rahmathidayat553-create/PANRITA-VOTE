@@ -1,0 +1,6 @@
+{
+  "name": "PanritaVote OSIS SMKN 9 Bulukumba",
+  "description": "Aplikasi e-voting pemilihan Ketua dan Wakil Ketua OSIS SMKN 9 Bulukumba yang aman, tertib, dan mobile-first.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

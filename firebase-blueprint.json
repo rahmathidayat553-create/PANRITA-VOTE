@@ -1,0 +1,200 @@
+{
+  "entities": {
+    "Pengaturan": {
+      "title": "Pengaturan",
+      "description": "Konfigurasi status dan identitas pemilihan OSIS",
+      "type": "object",
+      "properties": {
+        "namaPemilihan": {
+          "type": "string",
+          "description": "Nama kegiatan pemilihan OSIS"
+        },
+        "sekolah": {
+          "type": "string",
+          "description": "Nama satuan pendidikan"
+        },
+        "tahunAjaran": {
+          "type": "string",
+          "description": "Tahun ajaran pemilihan"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["belum_dibuka", "aktif", "selesai"],
+          "description": "Status pembukaan bilik suara"
+        },
+        "waktuMulai": {
+          "type": "string",
+          "description": "Waktu pembukaan bilik suara"
+        },
+        "waktuSelesai": {
+          "type": "string",
+          "description": "Waktu penutupan bilik suara"
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "URL logo sekolah"
+        }
+      },
+      "required": ["namaPemilihan", "sekolah", "status"]
+    },
+    "Paslon": {
+      "title": "Paslon",
+      "description": "Profil pasangan calon ketua dan wakil ketua OSIS",
+      "type": "object",
+      "properties": {
+        "nomorUrut": {
+          "type": "number",
+          "description": "Nomor urut paslon"
+        },
+        "namaKetua": {
+          "type": "string",
+          "description": "Nama calon ketua"
+        },
+        "kelasKetua": {
+          "type": "string",
+          "description": "Kelas calon ketua"
+        },
+        "namaWakil": {
+          "type": "string",
+          "description": "Nama calon wakil"
+        },
+        "kelasWakil": {
+          "type": "string",
+          "description": "Kelas calon wakil"
+        },
+        "fotoUrl": {
+          "type": "string",
+          "description": "Tautan URL foto bersama paslon"
+        },
+        "visi": {
+          "type": "string",
+          "description": "Visi program kerja"
+        },
+        "misi": {
+          "type": "array",
+          "description": "Daftar butir misi paslon"
+        },
+        "suaraPerolehan": {
+          "type": "number",
+          "description": "Jumlah akumulasi suara"
+        }
+      },
+      "required": ["nomorUrut", "namaKetua", "kelasKetua", "namaWakil", "kelasWakil", "visi"]
+    },
+    "Pemilih": {
+      "title": "Pemilih",
+      "description": "Data pemilih tetap (DPT) siswa dan guru",
+      "type": "object",
+      "properties": {
+        "jenis": {
+          "type": "string",
+          "enum": ["siswa", "guru"],
+          "description": "Kategori pemilih siswa atau guru"
+        },
+        "nisn": {
+          "type": "string",
+          "description": "Nomor induk siswa atau pegawai"
+        },
+        "nama": {
+          "type": "string",
+          "description": "Nama lengkap pemilih"
+        },
+        "kelas": {
+          "type": "string",
+          "description": "Kelas siswa atau jabatan guru"
+        },
+        "token": {
+          "type": "string",
+          "description": "Token 5 digit akses bilik suara"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["belum", "sudah"],
+          "description": "Status penggunaan hak suara"
+        },
+        "waktuMemilih": {
+          "type": "string",
+          "description": "Waktu penggunaan hak suara"
+        }
+      },
+      "required": ["jenis", "nisn", "nama", "kelas", "token", "status"]
+    },
+    "Suara": {
+      "title": "Suara",
+      "description": "Catatan audit surat suara masuk secara anonim",
+      "type": "object",
+      "properties": {
+        "paslonId": {
+          "type": "string",
+          "description": "ID paslon yang dicoblos"
+        },
+        "nomorUrut": {
+          "type": "number",
+          "description": "Nomor urut paslon yang dicoblos"
+        },
+        "waktu": {
+          "type": "string",
+          "description": "Waktu pencoblosan"
+        }
+      },
+      "required": ["paslonId", "nomorUrut", "waktu"]
+    },
+    "LogAktivitas": {
+      "title": "LogAktivitas",
+      "description": "Log catatan aktivitas sistem dan panitia",
+      "type": "object",
+      "properties": {
+        "waktu": {
+          "type": "string",
+          "description": "Waktu log aktivitas"
+        },
+        "aksi": {
+          "type": "string",
+          "description": "Deskripsi aktivitas"
+        },
+        "pengguna": {
+          "type": "string",
+          "description": "Nama pengguna atau peran"
+        },
+        "tipe": {
+          "type": "string",
+          "enum": ["auth", "sistem", "pemilihan"],
+          "description": "Kategori aktivitas"
+        }
+      },
+      "required": ["waktu", "aksi", "pengguna", "tipe"]
+    }
+  },
+  "firestore": {
+    "/pengaturan/pemilihan": {
+      "schema": {
+        "$ref": "#/entities/Pengaturan"
+      },
+      "description": "Dokumen tunggal pengaturan umum pemilihan OSIS"
+    },
+    "/paslon/{paslonId}": {
+      "schema": {
+        "$ref": "#/entities/Paslon"
+      },
+      "description": "Koleksi data pasangan calon ketua dan wakil ketua OSIS"
+    },
+    "/pemilih/{pemilihId}": {
+      "schema": {
+        "$ref": "#/entities/Pemilih"
+      },
+      "description": "Koleksi daftar pemilih tetap (DPT) siswa dan guru"
+    },
+    "/suara/{suaraId}": {
+      "schema": {
+        "$ref": "#/entities/Suara"
+      },
+      "description": "Audit trail anonim pencoblosan suara"
+    },
+    "/logs/{logId}": {
+      "schema": {
+        "$ref": "#/entities/LogAktivitas"
+      },
+      "description": "Koleksi log aktivitas panitia dan sistem"
+    }
+  }
+}
