@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Pemilih, Paslon, PengaturanPemilihan } from '../../data/dummy';
+import { ToastData } from '../Toast';
 import { SafeImage } from '../SafeImage';
 import {
   Lock,
@@ -19,6 +20,7 @@ interface VoterTokenPageProps {
   pengaturan: PengaturanPemilihan;
   onVerifyToken: (voter: Pemilih) => void;
   onAdminTokenEntered: () => void;
+  onShowToast?: (data: ToastData) => void;
 }
 
 export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
@@ -27,17 +29,50 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
   pengaturan,
   onVerifyToken,
   onAdminTokenEntered,
+  onShowToast,
 }) => {
   const [tokenInput, setTokenInput] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isCandidateModalOpen, setIsCandidateModalOpen] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [verifiedVoter, setVerifiedVoter] = useState<Pemilih | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Auto focus on load
     inputRef.current?.focus();
   }, []);
+
+  const triggerError = (
+    msg: string,
+    code: string,
+    type: 'warning' | 'error' | 'info' = 'error',
+    duration = 4500
+  ) => {
+    setErrorMessage(msg);
+    setIsShaking(true);
+
+    try {
+      if ('vibrate' in navigator) {
+        navigator.vibrate([100, 50, 100, 50, 150]);
+      }
+    } catch {}
+
+    onShowToast?.({
+      type,
+      title: type === 'warning' ? 'Perhatian' : 'Verifikasi Gagal',
+      message: msg,
+      code,
+      duration,
+    });
+
+    setTimeout(() => {
+      setIsShaking(false);
+      setTokenInput('');
+      inputRef.current?.focus();
+    }, 700);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only accept up to 5 digits (0-9)
@@ -52,6 +87,8 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
   };
 
   const validateAndSubmit = (codeToVerify: string) => {
+    if (isVerifying || verifiedVoter) return;
+
     setErrorMessage(null);
     setIsVerifying(true);
 
@@ -59,7 +96,12 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
       setIsVerifying(false);
 
       if (codeToVerify.length !== 5) {
-        setErrorMessage('Harap masukkan 5 digit angka token pemilih secara lengkap.');
+        triggerError(
+          'Harap masukkan 5 digit angka token pemilih secara lengkap.',
+          '[AUTH_ERR // TOKEN_INCOMPLETE]',
+          'warning',
+          3000
+        );
         return;
       }
 
@@ -71,10 +113,15 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
 
       // Periksa apakah status pemilihan sedang aktif
       if (pengaturan.status !== 'aktif') {
-        setErrorMessage(
-          pengaturan.status === 'ditutup'
-            ? 'Pemungutan suara telah selesai / ditutup oleh panitia.'
-            : 'Pemilihan belum dibuka oleh panitia. Silakan tunggu pembukaan resmi bilik suara di TPS.'
+        const isClosed = pengaturan.status === 'ditutup';
+        const msg = isClosed
+          ? 'Pemungutan suara telah selesai / ditutup oleh panitia.'
+          : 'Pemilihan belum dibuka oleh panitia. Silakan tunggu pembukaan resmi bilik suara di TPS.';
+        triggerError(
+          msg,
+          isClosed ? '[SYS_OFFLINE // POLL_CLOSED]' : '[SYS_STANDBY // PRE_POLL]',
+          isClosed ? 'info' : 'warning',
+          4500
         );
         return;
       }
@@ -82,22 +129,41 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
       const matched = pemilihList.find((p) => p.token === codeToVerify);
 
       if (!matched) {
-        setErrorMessage(
-          'Token 5 digit tidak terdaftar di DPT. Mohon periksa kembali atau minta token baru ke panitia.'
+        triggerError(
+          'Token 5 digit tidak terdaftar di DPT. Mohon periksa kembali atau minta token baru ke panitia.',
+          '[AUTH_FAIL // UNREGISTERED_TOKEN]',
+          'error',
+          4500
         );
         return;
       }
 
       if (matched.status === 'sudah') {
-        setErrorMessage(
-          `Token ${matched.token} milik ${matched.nama} (${matched.kelas}) sudah digunakan untuk mencoblos. Hak suara hanya berlaku satu kali.`
+        triggerError(
+          `Token ${matched.token} milik ${matched.nama} (${matched.kelas}) sudah digunakan untuk mencoblos. Hak suara hanya berlaku satu kali.`,
+          '[AUTH_DENIED // VOTE_EXPENDED]',
+          'error',
+          5000
         );
         return;
       }
 
-      // Valid! Trigger callback
-      onVerifyToken(matched);
-    }, 250);
+      // Valid! Tampilkan modal/toast ceklis tepat di tengah & otomatis masuk bilik suara
+      setVerifiedVoter(matched);
+
+      onShowToast?.({
+        type: 'success',
+        title: 'Token Terverifikasi!',
+        message: `Hak suara aktif untuk ${matched.nama} (${matched.kelas}). Membuka bilik suara...`,
+        code: '[AUTH_TOKEN_VERIFIED // 0x2A]',
+        duration: 2500,
+      });
+
+      // Otomatis pindah ke bilik suara tanpa menekan tombol lagi
+      setTimeout(() => {
+        onVerifyToken(matched);
+      }, 900);
+    }, 200);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -144,7 +210,13 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
 
       {/* Main Kiosk Voting Portal */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200/90 shadow-xl shadow-emerald-950/5 p-6 sm:p-8 text-center transition-all">
+        <div
+          className={`max-w-md w-full bg-white rounded-3xl border p-6 sm:p-8 text-center transition-all ${
+            isShaking
+              ? 'animate-earthquake border-rose-500 ring-4 ring-rose-400/50 shadow-[0_0_35px_rgba(244,63,94,0.4)]'
+              : 'border-slate-200/90 shadow-xl shadow-emerald-950/5'
+          }`}
+        >
           {/* Status Badge */}
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-5">
             <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
@@ -187,7 +259,9 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
                     <div
                       key={idx}
                       className={`w-12 h-14 sm:w-14 sm:h-16 rounded-2xl flex items-center justify-center text-2xl font-black font-mono transition-all duration-150 ${
-                        digit
+                        isShaking
+                          ? 'bg-rose-50 text-rose-700 border-2 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.3)]'
+                          : digit
                           ? 'bg-emerald-900 text-white border-2 border-emerald-800 shadow-sm scale-102'
                           : isCurrent
                           ? 'bg-emerald-50 text-emerald-950 border-2 border-emerald-600 ring-4 ring-emerald-100'
@@ -241,7 +315,16 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
             <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
               <button
                 type="button"
-                onClick={() => setIsCandidateModalOpen(true)}
+                onClick={() => {
+                  setIsCandidateModalOpen(true);
+                  onShowToast?.({
+                    type: 'info',
+                    title: 'Direktori Pasangan Calon',
+                    message: `Menampilkan profil & visi-misi ${paslonList.length} pasangan calon OSIS.`,
+                    code: '[DIR_LOOKUP // CANDIDATE_INDEX]',
+                    duration: 2500,
+                  });
+                }}
                 className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5 mx-auto transition-colors cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
@@ -259,6 +342,69 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
           <span>Kerahasiaan Suara Dijamin Penuh (Asas Luber Jurdil)</span>
         </div>
       </footer>
+
+      {/* Toast Ceklis Tepat di Bagian Tengah Layar (Glassmorphism HUD Center Modal) */}
+      {verifiedVoter && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 select-none"
+        >
+          <div className="relative max-w-sm sm:max-w-md w-full bg-slate-950/95 border border-emerald-400/80 shadow-[0_0_60px_rgba(16,185,129,0.55)] rounded-3xl p-6 sm:p-8 text-center text-white overflow-hidden animate-success-pop">
+            {/* HUD Corner Tech Brackets */}
+            <div className="absolute top-3 left-3 w-3.5 h-3.5 border-t-2 border-l-2 border-emerald-400" />
+            <div className="absolute top-3 right-3 w-3.5 h-3.5 border-t-2 border-r-2 border-emerald-400" />
+            <div className="absolute bottom-3 left-3 w-3.5 h-3.5 border-b-2 border-l-2 border-emerald-400" />
+            <div className="absolute bottom-3 right-3 w-3.5 h-3.5 border-b-2 border-r-2 border-emerald-400" />
+
+            {/* Glowing Big Center Checkmark */}
+            <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center shadow-[0_0_35px_#10b981] mb-4">
+              <CheckCircle2 className="w-12 h-12 sm:w-14 sm:h-14 text-emerald-400 animate-success-pop" />
+            </div>
+
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/40 text-[10px] font-mono uppercase tracking-widest text-emerald-300 font-bold mb-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+              </span>
+              <span>[SYS_OK // TOKEN_TERVERIFIKASI]</span>
+            </div>
+
+            <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              HAK SUARA AKTIF
+            </h3>
+
+            {/* Voter Data Card */}
+            <div className="mt-4 p-4 rounded-2xl bg-white/5 border border-emerald-500/30 font-mono text-left space-y-1.5 text-xs">
+              <div className="flex justify-between items-center text-slate-300">
+                <span>Nama Pemilih:</span>
+                <strong className="text-white font-bold">{verifiedVoter.nama}</strong>
+              </div>
+              <div className="flex justify-between items-center text-slate-300">
+                <span>Kelas / Unit:</span>
+                <strong className="text-emerald-300">{verifiedVoter.kelas}</strong>
+              </div>
+              <div className="flex justify-between items-center text-slate-300">
+                <span>Token Valid:</span>
+                <span className="font-bold text-white bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/50">
+                  {verifiedVoter.token}
+                </span>
+              </div>
+            </div>
+
+            {/* Auto-redirect status indicator */}
+            <div className="mt-5 flex items-center justify-center gap-2 text-xs font-mono text-emerald-300">
+              <div className="w-3.5 h-3.5 border-2 border-emerald-400/40 border-t-emerald-400 rounded-full animate-spin" />
+              <span>Membuka bilik suara secara otomatis...</span>
+            </div>
+
+            {/* Progress laser line */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-950 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300 animate-[pulse_1s_infinite] shadow-[0_0_10px_#10b981]" />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Candidate Modal to preview profiles */}
       {isCandidateModalOpen && (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Paslon } from '../../data/dummy';
+import { ToastData } from '../Toast';
 import { SafeImage } from '../SafeImage';
 import {
   Users2,
@@ -59,6 +60,7 @@ interface AdminPaslonProps {
   onAddPaslon: (paslon: Paslon) => void;
   onUpdatePaslon: (updated: Paslon) => void;
   onDeletePaslon: (id: string) => void;
+  onShowToast?: (data: ToastData) => void;
 }
 
 export const AdminPaslon: React.FC<AdminPaslonProps> = ({
@@ -66,6 +68,7 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
   onAddPaslon,
   onUpdatePaslon,
   onDeletePaslon,
+  onShowToast,
 }) => {
   // Modal states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -115,6 +118,13 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
     } else {
       setFormMisi([...formMisi, '']);
     }
+    onShowToast?.({
+      type: 'info',
+      title: 'Poin Misi Ditambahkan',
+      message: 'Baris butir misi baru telah ditambahkan.',
+      code: '[PASLON_MISSION_ROW]',
+      duration: 1500,
+    });
   };
 
   const handleRemoveMissionField = (index: number, isEdit = false) => {
@@ -152,13 +162,29 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
       !formKelasWakil.trim() ||
       !formVisi.trim()
     ) {
-      setFormError('Harap lengkapi nama ketua, wakil, kelas, dan visi.');
+      const msg = 'Harap lengkapi nama ketua, wakil, kelas, dan visi.';
+      setFormError(msg);
+      onShowToast?.({
+        type: 'warning',
+        title: 'Form Belum Lengkap',
+        message: msg,
+        code: '[VALIDATION_FAIL]',
+        duration: 3000,
+      });
       return;
     }
 
     const cleanMisi = formMisi.filter((m) => m.trim().length > 0);
     if (cleanMisi.length === 0) {
-      setFormError('Harap isi minimal 1 poin misi.');
+      const msg = 'Harap isi minimal 1 poin misi program kerja.';
+      setFormError(msg);
+      onShowToast?.({
+        type: 'warning',
+        title: 'Misi Masih Kosong',
+        message: msg,
+        code: '[VALIDATION_FAIL]',
+        duration: 3000,
+      });
       return;
     }
 

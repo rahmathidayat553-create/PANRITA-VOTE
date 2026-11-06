@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Shield, KeyRound, User, AlertCircle, ArrowLeft, Lock, ShieldCheck } from 'lucide-react';
 import { SafeImage } from '../SafeImage';
+import { ToastData } from '../Toast';
 
 interface AdminLoginPageProps {
   logoUrl: string;
   sekolah: string;
   onLoginSuccess: () => void;
   onBackToVoter: () => void;
+  onShowToast?: (data: ToastData) => void;
 }
 
 export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
@@ -14,6 +16,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   sekolah,
   onLoginSuccess,
   onBackToVoter,
+  onShowToast,
 }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -31,7 +34,15 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
       if (username.trim() === 'admin' && password === 'admin123') {
         onLoginSuccess();
       } else {
-        setError('Username atau password admin salah. Silakan periksa kembali kredensial Anda.');
+        const msg = 'Username atau password admin salah. Silakan periksa kembali panduan kredensial.';
+        setError(msg);
+        onShowToast?.({
+          type: 'error',
+          title: 'Kredensial Ditolak',
+          message: msg,
+          code: '[AUTH_REJECT // ACCESS_DENIED]',
+          duration: 4000,
+        });
       }
     }, 250);
   };
@@ -40,6 +51,13 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
     setUsername('admin');
     setPassword('admin123');
     setError(null);
+    onShowToast?.({
+      type: 'info',
+      title: 'Kredensial Panitia Dimuat',
+      message: 'Username "admin" dan password otorisasi berhasil disiapkan.',
+      code: '[SEC_CREDENTIAL_LOADED]',
+      duration: 2000,
+    });
   };
 
   return (

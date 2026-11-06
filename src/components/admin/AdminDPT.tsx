@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Pemilih, generateUniqueToken } from '../../data/dummy';
+import { ToastData } from '../Toast';
 import {
   Search,
   CheckCircle2,
@@ -18,6 +19,7 @@ import {
   FileText,
   FileDown,
   ShieldCheck,
+  Copy,
 } from 'lucide-react';
 import {
   downloadVoterTemplate,
@@ -34,6 +36,7 @@ interface AdminDPTProps {
   onUpdatePemilih: (voter: Pemilih) => void;
   onDeletePemilih: (id: string) => void;
   onImportPemilih: (newVoters: Pemilih[]) => void;
+  onShowToast?: (data: ToastData) => void;
 }
 
 export const AdminDPT: React.FC<AdminDPTProps> = ({
@@ -44,6 +47,7 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
   onUpdatePemilih,
   onDeletePemilih,
   onImportPemilih,
+  onShowToast,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'semua' | 'sudah' | 'belum'>('semua');
@@ -98,6 +102,24 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
     } else {
       setFormToken(newToken);
     }
+    onShowToast?.({
+      type: 'info',
+      title: 'Token Baru Dibuat',
+      message: `Token 5 digit baru [${newToken}] siap digunakan.`,
+      code: '[TOKEN_REGENERATED]',
+      duration: 2000,
+    });
+  };
+
+  const handleCopyToken = (voter: Pemilih) => {
+    navigator.clipboard.writeText(voter.token).catch(() => {});
+    onShowToast?.({
+      type: 'success',
+      title: 'Token Disalin ke Clipboard',
+      message: `Token [${voter.token}] milik ${voter.nama} (${voter.kelas}) berhasil disalin.`,
+      code: '[CLIPBOARD_COPIED]',
+      duration: 2500,
+    });
   };
 
   // Submit Add
@@ -106,12 +128,28 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
     setFormError(null);
 
     if (!formNama.trim() || !formNisn.trim() || !formKelas.trim()) {
-      setFormError('Harap lengkapi seluruh kolom isian data pemilih.');
+      const msg = 'Harap lengkapi seluruh kolom isian data pemilih.';
+      setFormError(msg);
+      onShowToast?.({
+        type: 'warning',
+        title: 'Form Belum Lengkap',
+        message: msg,
+        code: '[VALIDATION_FAIL]',
+        duration: 3000,
+      });
       return;
     }
 
     if (formToken.length !== 5 || !/^\d{5}$/.test(formToken)) {
-      setFormError('Token harus berupa 5 digit angka.');
+      const msg = 'Token harus berupa 5 digit angka.';
+      setFormError(msg);
+      onShowToast?.({
+        type: 'warning',
+        title: 'Format Token Salah',
+        message: msg,
+        code: '[VALIDATION_FAIL]',
+        duration: 3000,
+      });
       return;
     }
 
@@ -136,7 +174,13 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
     if (!editingVoter) return;
 
     if (!editingVoter.nama.trim() || !editingVoter.nisn.trim() || !editingVoter.kelas.trim()) {
-      alert('Harap lengkapi seluruh kolom data pemilih.');
+      onShowToast?.({
+        type: 'warning',
+        title: 'Data Belum Lengkap',
+        message: 'Harap lengkapi seluruh kolom data pemilih.',
+        code: '[VALIDATION_FAIL]',
+        duration: 3000,
+      });
       return;
     }
 
@@ -184,7 +228,13 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
   const handleDownloadCsv = (targetScope: 'all' | 'filtered') => {
     const targetList = targetScope === 'all' ? pemilihList : filtered;
     if (targetList.length === 0) {
-      alert('Tidak ada data pemilih yang dapat diekspor.');
+      onShowToast?.({
+        type: 'warning',
+        title: 'Data Kosong',
+        message: 'Tidak ada data pemilih yang dapat diekspor ke CSV.',
+        code: '[EXPORT_EMPTY]',
+        duration: 2500,
+      });
       return;
     }
 
@@ -194,6 +244,13 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
 
     exportVotersToCsv(targetList, filename);
     setIsExportModalOpen(false);
+    onShowToast?.({
+      type: 'success',
+      title: 'Berkas CSV Diunduh',
+      message: `Berkas cadangan "${filename}" (${targetList.length} pemilih) berhasil diekspor.`,
+      code: '[DPT_CSV_EXPORTED]',
+      duration: 4000,
+    });
     setExportSuccessMessage(
       `Berkas cadangan CSV "${filename}" (${targetList.length} data pemilih) berhasil diunduh untuk arsip & audit manual.`
     );
@@ -239,7 +296,16 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         {/* Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={() => setIsPrinterOpen(true)}
+            onClick={() => {
+              setIsPrinterOpen(true);
+              onShowToast?.({
+                type: 'info',
+                title: 'Memuat Lembar Kartu Suara',
+                message: 'Menyiapkan modul cetak kartu DPT dengan QR Code & 5 digit token.',
+                code: '[PRINT_JOB_PREPARED]',
+                duration: 2500,
+              });
+            }}
             className="px-3 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5 text-emerald-300" />
@@ -259,7 +325,16 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
           </button>
 
           <button
-            onClick={downloadVoterTemplate}
+            onClick={() => {
+              downloadVoterTemplate();
+              onShowToast?.({
+                type: 'info',
+                title: 'Template Excel Diunduh',
+                message: 'Template format DPT (Siswa & Guru) siap diisi.',
+                code: '[XLSX_TEMPLATE_READY]',
+                duration: 3000,
+              });
+            }}
             className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             title="Unduh contoh template berkas Excel"
           >
@@ -423,9 +498,15 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
                     <td className="px-4 py-3 font-semibold text-slate-900">{item.nama}</td>
                     <td className="px-4 py-3">{item.kelas}</td>
                     <td className="px-4 py-3">
-                      <span className="font-mono font-bold bg-emerald-50 text-emerald-950 px-2 py-0.5 rounded border border-emerald-200 tracking-wider">
-                        {item.token}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyToken(item)}
+                        className="inline-flex items-center gap-1.5 font-mono font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-950 px-2 py-0.5 rounded border border-emerald-200 tracking-wider transition-colors cursor-pointer group"
+                        title="Klik untuk salin token 5 digit"
+                      >
+                        <span>{item.token}</span>
+                        <Copy className="w-3 h-3 text-emerald-600 group-hover:text-emerald-800 transition-colors" />
+                      </button>
                     </td>
                     <td className="px-4 py-3">
                       {item.status === 'sudah' ? (

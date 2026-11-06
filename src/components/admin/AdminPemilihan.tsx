@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { PengaturanPemilihan } from '../../data/dummy';
 import { SafeImage } from '../SafeImage';
+import { ToastData } from '../Toast';
 import { Settings, Save, CheckCircle2, Shield, Calendar, Link } from 'lucide-react';
 
 interface AdminPemilihanProps {
   pengaturan: PengaturanPemilihan;
   onUpdatePengaturan: (newSettings: PengaturanPemilihan) => void;
+  onShowToast?: (data: ToastData) => void;
 }
 
 export const AdminPemilihan: React.FC<AdminPemilihanProps> = ({
   pengaturan,
   onUpdatePengaturan,
+  onShowToast,
 }) => {
   const [form, setForm] = useState<PengaturanPemilihan>({ ...pengaturan });
   const [isSaved, setIsSaved] = useState(false);
@@ -88,12 +91,20 @@ export const AdminPemilihan: React.FC<AdminPemilihanProps> = ({
               </label>
               <select
                 value={form.status}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const newStatus = e.target.value as 'aktif' | 'ditutup' | 'persiapan';
                   setForm({
                     ...form,
-                    status: e.target.value as 'aktif' | 'ditutup' | 'persiapan',
-                  })
-                }
+                    status: newStatus,
+                  });
+                  onShowToast?.({
+                    type: newStatus === 'aktif' ? 'success' : 'warning',
+                    title: `Status Diubah: ${newStatus.toUpperCase()}`,
+                    message: `Status bilik suara disetel ke "${newStatus}". Klik Simpan Pengaturan untuk mengaktifkan perubahan.`,
+                    code: '[SYS_STATUS // PENDING_SAVE]',
+                    duration: 3000,
+                  });
+                }}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none bg-white font-medium"
               >
                 <option value="aktif">Sedang Berlangsung (Aktif)</option>

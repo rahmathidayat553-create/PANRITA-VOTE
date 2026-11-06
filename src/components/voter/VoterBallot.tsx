@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Paslon, Pemilih } from '../../data/dummy';
+import { ToastData } from '../Toast';
 import { SafeImage } from '../SafeImage';
 import {
   Vote,
@@ -15,6 +16,7 @@ interface VoterBallotProps {
   activeVoter: Pemilih;
   onCastVote: (paslonId: string) => void;
   onCancel: () => void;
+  onShowToast?: (data: ToastData) => void;
 }
 
 export const VoterBallot: React.FC<VoterBallotProps> = ({
@@ -22,6 +24,7 @@ export const VoterBallot: React.FC<VoterBallotProps> = ({
   activeVoter,
   onCastVote,
   onCancel,
+  onShowToast,
 }) => {
   const [selectedPaslon, setSelectedPaslon] = useState<Paslon | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -29,6 +32,24 @@ export const VoterBallot: React.FC<VoterBallotProps> = ({
   const handleSelect = (paslon: Paslon) => {
     setSelectedPaslon(paslon);
     setIsConfirmOpen(true);
+    onShowToast?.({
+      type: 'info',
+      title: `Paslon No. ${paslon.nomorUrut} Dipilih`,
+      message: `Target terpilih: ${paslon.namaKetua} & ${paslon.namaWakil}. Silakan tekan tombol konfirmasi coblos.`,
+      code: '[BALLOT_TARGET_LOCKED]',
+      duration: 3000,
+    });
+  };
+
+  const handleCancelSession = () => {
+    onShowToast?.({
+      type: 'warning',
+      title: 'Sesi Bilik Dibatalkan',
+      message: 'Keluar dari bilik suara tanpa mencoblos. Hak pilih belum digunakan.',
+      code: '[SESSION_ABORTED]',
+      duration: 3000,
+    });
+    onCancel();
   };
 
   const handleConfirmVote = () => {
@@ -68,7 +89,7 @@ export const VoterBallot: React.FC<VoterBallotProps> = ({
             <span>Pilihan Rahasia</span>
           </div>
           <button
-            onClick={onCancel}
+            onClick={handleCancelSession}
             className="px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-rose-700 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
             title="Batal dan kembali ke layar awal"
           >
