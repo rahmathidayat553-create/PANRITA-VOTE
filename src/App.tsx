@@ -8,6 +8,7 @@ import {
   Pemilih,
   PengaturanPemilihan,
   LogAktivitas,
+  ElectionBackup,
 } from './data/dummy';
 import {
   subscribePengaturan,
@@ -24,8 +25,12 @@ import {
   executeAtomicVote,
   subscribeLogs,
   addLogToDb,
+  resetHasilPemilihanInDb,
+  resetTotalDatabaseInDb,
+  restoreCompleteBackupToDb,
 } from './services/electionService';
 import { Toast, ToastData } from './components/Toast';
+import { Cinematic3DBackground } from './components/common/Cinematic3DBackground';
 import { VoterTokenPage } from './components/voter/VoterTokenPage';
 import { VoterBallot } from './components/voter/VoterBallot';
 import { AdminLoginPage } from './components/admin/AdminLoginPage';
@@ -566,8 +571,77 @@ export default function App() {
     }
   };
 
+  const handleResetVotes = async () => {
+    try {
+      await resetHasilPemilihanInDb(paslonList, pemilihList);
+      showToast({
+        type: 'success',
+        title: 'Hasil Suara Direset',
+        message: 'Hasil bilik suara berhasil dinolkan dan seluruh DPT siap memilih kembali.',
+        code: '[VOTES_RESET // ZERO_BASE]',
+        duration: 4000,
+      });
+    } catch (err: any) {
+      console.error('Gagal reset hasil suara:', err);
+      showToast({
+        type: 'error',
+        title: 'Gagal Reset Suara',
+        message: 'Terjadi kendala saat mereset data perolehan suara di Firestore.',
+        code: '[RESET_ERR // FIRESTORE_FAIL]',
+        duration: 4000,
+      });
+    }
+  };
+
+  const handleResetFactory = async () => {
+    try {
+      await resetTotalDatabaseInDb(paslonList, pemilihList);
+      showToast({
+        type: 'success',
+        title: 'Factory Reset Selesai',
+        message: 'Database berhasil dibersihkan total. Sistem kembali ke Tahap Persiapan.',
+        code: '[FACTORY_RESET // CLEAN_SLATE]',
+        duration: 4500,
+      });
+    } catch (err: any) {
+      console.error('Gagal reset total database:', err);
+      showToast({
+        type: 'error',
+        title: 'Gagal Factory Reset',
+        message: 'Terjadi kendala saat mereset total database.',
+        code: '[RESET_FACTORY_ERR]',
+        duration: 4000,
+      });
+    }
+  };
+
+  const handleRestoreBackup = async (backup: ElectionBackup) => {
+    try {
+      await restoreCompleteBackupToDb(backup, paslonList, pemilihList);
+      showToast({
+        type: 'success',
+        title: 'Pemulihan Selesai',
+        message: `Data dari berkas cadangan (${backup.paslonList?.length || 0} paslon, ${backup.pemilihList?.length || 0} DPT) berhasil dipulihkan ke Firestore.`,
+        code: '[BACKUP_RESTORE // OK]',
+        duration: 4500,
+      });
+    } catch (err: any) {
+      console.error('Gagal restore data:', err);
+      showToast({
+        type: 'error',
+        title: 'Gagal Memulihkan Cadangan',
+        message: 'Terjadi kesalahan saat menerapkan data cadangan ke Firestore.',
+        code: '[RESTORE_ERR // FIRESTORE_FAIL]',
+        duration: 4000,
+      });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased selection:bg-emerald-200 selection:text-emerald-950 flex flex-col">
+    <div className="min-h-screen bg-[#02130c] font-sans text-slate-100 antialiased selection:bg-orange-500/30 selection:text-orange-200 flex flex-col relative overflow-x-hidden">
+      {/* 3D Cinematic Background in Three.js (Fixed behind UI) */}
+      <Cinematic3DBackground />
+
       {/* Smooth Global Toast Notification */}
       <Toast toast={toast} onClose={() => setToast(null)} />
 
@@ -639,7 +713,13 @@ export default function App() {
           {adminMenu === 'pemilihan' && (
             <AdminPemilihan
               pengaturan={pengaturan}
+              paslonList={paslonList}
+              pemilihList={pemilihList}
+              logs={logs}
               onUpdatePengaturan={handleUpdatePengaturan}
+              onResetVotes={handleResetVotes}
+              onResetFactory={handleResetFactory}
+              onRestoreData={handleRestoreBackup}
               onShowToast={showToast}
             />
           )}
@@ -647,6 +727,8 @@ export default function App() {
           {adminMenu === 'paslon' && (
             <AdminPaslon
               paslonList={paslonList}
+              isElectionActive={pengaturan.status === 'aktif'}
+              statusPemilihan={pengaturan.status}
               onAddPaslon={handleAddPaslon}
               onUpdatePaslon={handleUpdatePaslon}
               onDeletePaslon={handleDeletePaslon}

@@ -172,12 +172,12 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-slate-100 to-emerald-950/10 flex flex-col justify-between">
+    <div className="min-h-screen bg-transparent flex flex-col justify-between relative z-10">
       {/* Top Header */}
-      <header className="w-full bg-white/95 backdrop-blur-md border-b border-emerald-900/10 sticky top-0 z-40">
+      <header className="w-full bg-[#021810]/85 backdrop-blur-xl border-b border-emerald-500/20 sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl overflow-hidden bg-emerald-50 border border-emerald-800/20 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#02130c] border border-orange-500/40 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(249,115,22,0.25)]">
               <SafeImage
                 src={pengaturan.logoUrl}
                 alt="Logo Sekolah"
@@ -187,10 +187,13 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
               />
             </div>
             <div>
-              <h1 className="text-base font-bold tracking-tight text-emerald-950 leading-tight">
-                PanritaVote
+              <h1 className="text-base font-bold tracking-tight text-white leading-tight flex items-center gap-1.5">
+                <span>PanritaVote</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-orange-500/20 text-orange-400 border border-orange-400/40">
+                  SMKN 9
+                </span>
               </h1>
-              <p className="text-xs text-emerald-800/80 font-medium">
+              <p className="text-xs text-emerald-300/80 font-medium truncate">
                 {pengaturan.sekolah}
               </p>
             </div>
@@ -199,9 +202,9 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsCandidateModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-emerald-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-emerald-200 hover:text-white bg-[#042017]/70 hover:bg-[#042017] rounded-xl border border-emerald-500/25 transition-all cursor-pointer shadow-sm"
             >
-              <Eye className="w-4 h-4 text-emerald-800" />
+              <Eye className="w-4 h-4 text-orange-400" />
               <span>Profil Paslon</span>
             </button>
           </div>
@@ -211,24 +214,24 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
       {/* Main Kiosk Voting Portal */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
         <div
-          className={`max-w-md w-full bg-white rounded-3xl border p-6 sm:p-8 text-center transition-all ${
+          className={`max-w-md w-full bg-[#042017]/85 backdrop-blur-2xl rounded-3xl border p-6 sm:p-8 text-center transition-all ${
             isShaking
-              ? 'animate-earthquake border-rose-500 ring-4 ring-rose-400/50 shadow-[0_0_35px_rgba(244,63,94,0.4)]'
-              : 'border-slate-200/90 shadow-xl shadow-emerald-950/5'
+              ? 'animate-earthquake border-rose-500 ring-4 ring-rose-500/50 shadow-[0_0_40px_rgba(244,63,94,0.5)]'
+              : 'border-emerald-500/30 shadow-[0_20px_60px_rgba(0,0,0,0.65)] hover:shadow-[0_24px_70px_rgba(16,185,129,0.2)]'
           }`}
         >
           {/* Status Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-5">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-            <span>Bilik Suara Digital Terbuka</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-5 font-mono">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#10b981]"></span>
+            <span>BILIK SUARA DIGITAL TERBUKA</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
             Masukkan Token Pemilih
           </h2>
 
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto mb-6">
-            Ketik <strong className="text-emerald-900 font-bold">5 digit angka</strong> kode pemilih yang Anda terima dari panitia untuk membuka bilik suara.
+          <p className="text-xs sm:text-sm text-emerald-200/80 leading-relaxed max-w-sm mx-auto mb-6">
+            Ketik <strong className="text-orange-400 font-bold">5 digit angka</strong> kode pemilih yang Anda terima dari panitia untuk membuka bilik suara.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -260,28 +263,28 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
                       key={idx}
                       className={`w-12 h-14 sm:w-14 sm:h-16 rounded-2xl flex items-center justify-center text-2xl font-black font-mono transition-all duration-150 ${
                         isShaking
-                          ? 'bg-rose-50 text-rose-700 border-2 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.3)]'
+                          ? 'bg-rose-950/80 text-rose-300 border-2 border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.4)]'
                           : digit
-                          ? 'bg-emerald-900 text-white border-2 border-emerald-800 shadow-sm scale-102'
+                          ? 'bg-gradient-to-b from-orange-500 to-amber-600 text-white border-2 border-orange-400 shadow-[0_0_20px_rgba(249,115,22,0.4)] scale-103'
                           : isCurrent
-                          ? 'bg-emerald-50 text-emerald-950 border-2 border-emerald-600 ring-4 ring-emerald-100'
-                          : 'bg-slate-50 text-slate-400 border border-slate-300'
+                          ? 'bg-[#021810] text-emerald-300 border-2 border-emerald-400 ring-4 ring-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                          : 'bg-[#02130c]/70 text-emerald-700/60 border border-emerald-500/25'
                       }`}
                     >
-                      {digit || (isCurrent ? <span className="animate-pulse">|</span> : '·')}
+                      {digit || (isCurrent ? <span className="animate-pulse text-emerald-400">|</span> : '·')}
                     </div>
                   );
                 })}
               </div>
 
-              <span className="block text-[11px] text-slate-400 mt-2">
-                Sentuh kotak angka di atas untuk mengetik ({tokenInput.length}/5 digit)
+              <span className="block text-[11px] text-emerald-300/60 mt-2 font-mono">
+                Sentuh kotak angka untuk mengetik ({tokenInput.length}/5 digit)
               </span>
             </div>
 
             {errorMessage && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5 text-left animate-in fade-in duration-200">
-                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5 text-left animate-in fade-in duration-200">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                 <span className="leading-relaxed">{errorMessage}</span>
               </div>
             )}
@@ -289,10 +292,10 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
             <button
               type="submit"
               disabled={tokenInput.length !== 5 || isVerifying}
-              className={`w-full py-3.5 px-6 rounded-2xl font-bold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
+              className={`w-full py-4 px-6 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg ${
                 tokenInput.length === 5 && !isVerifying
-                  ? 'bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white shadow-emerald-950/20 active:scale-98'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 active:from-orange-600 active:to-amber-700 text-white shadow-orange-950/40 active:scale-98 border border-orange-400/40'
+                  : 'bg-[#02130c]/70 text-emerald-700/50 border border-emerald-900/30 cursor-not-allowed shadow-none'
               }`}
             >
               {isVerifying ? (
@@ -312,7 +315,7 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
 
           {/* Quick Preview Candidates Button (Mobile) */}
           {paslonList.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <div className="mt-5 pt-4 border-t border-emerald-500/20 flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => {
@@ -325,7 +328,7 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
                     duration: 2500,
                   });
                 }}
-                className="text-xs font-semibold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5 mx-auto transition-colors cursor-pointer"
+                className="text-xs font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1.5 mx-auto transition-colors cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>Lihat Profil {paslonList.length} Pasangan Calon</span>
@@ -336,9 +339,9 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
       </main>
 
       {/* Footer Info (Bersih dari link admin) */}
-      <footer className="py-4 px-4 text-center text-xs text-slate-500 flex items-center justify-center">
-        <div className="flex items-center gap-1.5 text-emerald-900 font-medium">
-          <ShieldCheck className="w-4 h-4 text-emerald-700" />
+      <footer className="py-4 px-4 text-center text-xs text-emerald-300/70 flex items-center justify-center">
+        <div className="flex items-center gap-1.5 text-emerald-300 font-medium">
+          <ShieldCheck className="w-4 h-4 text-orange-400" />
           <span>Kerahasiaan Suara Dijamin Penuh (Asas Luber Jurdil)</span>
         </div>
       </footer>
@@ -348,9 +351,9 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200 select-none"
         >
-          <div className="relative max-w-sm sm:max-w-md w-full bg-slate-950/95 border border-emerald-400/80 shadow-[0_0_60px_rgba(16,185,129,0.55)] rounded-3xl p-6 sm:p-8 text-center text-white overflow-hidden animate-success-pop">
+          <div className="relative max-w-sm sm:max-w-md w-full bg-[#021810]/95 border border-emerald-400/80 shadow-[0_0_60px_rgba(16,185,129,0.55)] rounded-3xl p-6 sm:p-8 text-center text-white overflow-hidden animate-success-pop">
             {/* HUD Corner Tech Brackets */}
             <div className="absolute top-3 left-3 w-3.5 h-3.5 border-t-2 border-l-2 border-emerald-400" />
             <div className="absolute top-3 right-3 w-3.5 h-3.5 border-t-2 border-r-2 border-emerald-400" />
@@ -376,15 +379,15 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
 
             {/* Voter Data Card */}
             <div className="mt-4 p-4 rounded-2xl bg-white/5 border border-emerald-500/30 font-mono text-left space-y-1.5 text-xs">
-              <div className="flex justify-between items-center text-slate-300">
+              <div className="flex justify-between items-center text-emerald-200">
                 <span>Nama Pemilih:</span>
                 <strong className="text-white font-bold">{verifiedVoter.nama}</strong>
               </div>
-              <div className="flex justify-between items-center text-slate-300">
+              <div className="flex justify-between items-center text-emerald-200">
                 <span>Kelas / Unit:</span>
-                <strong className="text-emerald-300">{verifiedVoter.kelas}</strong>
+                <strong className="text-orange-400">{verifiedVoter.kelas}</strong>
               </div>
-              <div className="flex justify-between items-center text-slate-300">
+              <div className="flex justify-between items-center text-emerald-200">
                 <span>Token Valid:</span>
                 <span className="font-bold text-white bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/50">
                   {verifiedVoter.token}
@@ -400,28 +403,29 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
 
             {/* Progress laser line */}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-950 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300 animate-[pulse_1s_infinite] shadow-[0_0_10px_#10b981]" />
+              <div className="h-full bg-gradient-to-r from-orange-500 via-amber-400 to-emerald-400 animate-[pulse_1s_infinite] shadow-[0_0_10px_#f97316]" />
             </div>
           </div>
         </div>
       )}
 
-      {/* Candidate Modal to preview profiles */}
+      {/* Candidate Modal to preview profiles (Gaya Form Menyamping dengan Side Action Dock) */}
       {isCandidateModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 my-8">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#042017]/95 rounded-3xl max-w-4xl w-full p-6 shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-emerald-500/30 my-8">
+            <div className="flex items-center justify-between pb-4 border-b border-emerald-500/20 mb-4">
               <div>
-                <h3 className="text-base font-bold text-slate-900">
-                  Daftar Pasangan Calon Ketua & Wakil Ketua OSIS
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-orange-400" />
+                  <span>Daftar Pasangan Calon Ketua & Wakil Ketua OSIS</span>
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-emerald-200/70">
                   SMKN 9 Bulukumba Periode 2026/2027
                 </p>
               </div>
               <button
                 onClick={() => setIsCandidateModalOpen(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
+                className="p-2 text-emerald-400 hover:text-white rounded-xl hover:bg-emerald-900/50 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -431,10 +435,10 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
               {paslonList.map((paslon) => (
                 <div
                   key={paslon.id}
-                  className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between"
+                  className="bg-[#02130c]/80 rounded-2xl border border-emerald-500/20 overflow-hidden flex flex-col justify-between hover:border-orange-500/40 transition-colors"
                 >
-                  <div className="bg-emerald-900 text-white p-3 flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-lg bg-emerald-500 text-emerald-950 font-black text-sm flex items-center justify-center">
+                  <div className="bg-[#021810] text-white p-3 flex items-center gap-2 border-b border-emerald-500/20">
+                    <span className="w-7 h-7 rounded-lg bg-gradient-to-r from-orange-500 to-amber-600 text-white font-black text-sm flex items-center justify-center shadow-md font-mono">
                       {paslon.nomorUrut}
                     </span>
                     <span className="text-xs font-bold truncate">
@@ -442,8 +446,8 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
                     </span>
                   </div>
 
-                  <div className="p-3 border-b border-slate-200 bg-white">
-                    <div className="w-full aspect-4/3 rounded-xl overflow-hidden border border-slate-200 mb-2">
+                  <div className="p-3 border-b border-emerald-500/20 bg-[#02130c]/50">
+                    <div className="w-full aspect-4/3 rounded-xl overflow-hidden border border-emerald-500/25 mb-2 bg-[#021810]">
                       <SafeImage
                         src={paslon.fotoUrl}
                         alt={`Paslon ${paslon.nomorUrut}: ${paslon.namaKetua} & ${paslon.namaWakil}`}
@@ -452,13 +456,13 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
                       />
                     </div>
                     <div className="text-center">
-                      <span className="text-xs font-bold text-slate-900 block truncate">
+                      <span className="text-xs font-bold text-white block truncate">
                         {paslon.namaKetua}
                       </span>
-                      <span className="text-[11px] font-semibold text-slate-600 block truncate">
+                      <span className="text-[11px] font-semibold text-orange-400 block truncate">
                         & {paslon.namaWakil}
                       </span>
-                      <span className="text-[10px] text-slate-400 block truncate mt-0.5">
+                      <span className="text-[10px] text-emerald-300/60 block truncate mt-0.5">
                         {paslon.kelasKetua} · {paslon.kelasWakil}
                       </span>
                     </div>
@@ -466,22 +470,22 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
 
                   <div className="p-3 text-xs space-y-2 flex-1">
                     <div>
-                      <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider block mb-0.5">
+                      <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider block mb-0.5">
                         Visi:
                       </span>
-                      <p className="text-[11px] text-slate-600 italic line-clamp-2">
+                      <p className="text-[11px] text-emerald-200/80 italic line-clamp-2">
                         "{paslon.visi}"
                       </p>
                     </div>
 
                     <div>
-                      <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider block mb-0.5">
+                      <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider block mb-0.5">
                         Misi Utama:
                       </span>
-                      <ul className="space-y-1 text-[11px] text-slate-600">
+                      <ul className="space-y-1 text-[11px] text-emerald-200/80">
                         {paslon.misi.slice(0, 2).map((m, idx) => (
                           <li key={idx} className="flex items-start gap-1">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-700 shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0 mt-0.5" />
                             <span className="line-clamp-1">{m}</span>
                           </li>
                         ))}
@@ -492,11 +496,11 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
               ))}
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-100 flex justify-end">
+            <div className="mt-4 pt-3 border-t border-emerald-500/20 flex justify-end">
               <button
                 type="button"
                 onClick={() => setIsCandidateModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs cursor-pointer shadow-lg shadow-orange-950/40 border border-orange-400/40"
               >
                 Tutup & Kembali ke Masukkan Token
               </button>

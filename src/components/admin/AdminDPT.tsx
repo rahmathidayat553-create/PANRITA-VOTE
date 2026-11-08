@@ -282,14 +282,17 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
 
   return (
     <div className="space-y-6 max-w-6xl">
-      {/* Top Header & Actions Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      {/* Top Header & Actions Bar (Dark Glassmorphism) */}
+      <div className="p-6 rounded-3xl bg-[#042017]/80 backdrop-blur-xl border border-emerald-500/25 shadow-xl shadow-black/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-slate-900">
-            Daftar Pemilih Tetap (DPT) Siswa & Guru
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Kelola data pemilih, import Excel (.xlsx), ekspor CSV (backup & audit), unduh template, dan cetak kartu pemilih PDF.
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-orange-500" />
+            <h2 className="text-lg font-bold text-white tracking-wide">
+              Daftar Pemilih Tetap (DPT) Siswa & Guru
+            </h2>
+          </div>
+          <p className="text-xs text-emerald-200/80 max-w-xl">
+            Kelola data pemilih sah, impor Excel (.xlsx), ekspor CSV cadangan, unduh template resmi, dan cetak kartu pemilih PDF ber-token 5 digit.
           </p>
         </div>
 
@@ -306,9 +309,9 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
                 duration: 2500,
               });
             }}
-            className="px-3 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-3.5 py-2 bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/30 text-emerald-200 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer hover:border-orange-500/40"
           >
-            <Printer className="w-3.5 h-3.5 text-emerald-300" />
+            <Printer className="w-3.5 h-3.5 text-orange-400" />
             <span>Cetak Kartu PDF</span>
           </button>
 
@@ -317,10 +320,10 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
               setExportScope(filtered.length !== pemilihList.length ? 'filtered' : 'all');
               setIsExportModalOpen(true);
             }}
-            className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-3.5 py-2 bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/30 text-emerald-200 font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer hover:border-orange-500/40"
             title="Ekspor daftar pemilih ke berkas CSV untuk cadangan (backup) dan audit manual"
           >
-            <FileDown className="w-3.5 h-3.5 text-emerald-700" />
+            <FileDown className="w-3.5 h-3.5 text-orange-400" />
             <span>Ekspor CSV</span>
           </button>
 
@@ -335,10 +338,10 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
                 duration: 3000,
               });
             }}
-            className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-3.5 py-2 bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/30 text-emerald-200 font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer hover:border-orange-500/40"
             title="Unduh contoh template berkas Excel"
           >
-            <Download className="w-3.5 h-3.5 text-emerald-700" />
+            <Download className="w-3.5 h-3.5 text-orange-400" />
             <span>Template XLSX</span>
           </button>
 
@@ -348,15 +351,15 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
               setImportError(null);
               setIsImportModalOpen(true);
             }}
-            className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-900 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-3.5 py-2 bg-emerald-900/70 hover:bg-emerald-800 border border-emerald-500/40 text-emerald-100 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer hover:border-orange-500/40"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-700" />
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-300" />
             <span>Import XLSX</span>
           </button>
 
           <button
             onClick={handleOpenAdd}
-            className="px-4 py-2 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-orange-950/50 border border-orange-400/40 cursor-pointer hover:-translate-y-0.5"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>+ Tambah Pemilih</span>
@@ -382,32 +385,32 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         </div>
       )}
 
-      {/* KPI Counters */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-        <div className="p-3.5 rounded-xl bg-white border border-slate-200">
-          <span className="text-slate-500 text-[11px] block">Total DPT</span>
-          <span className="text-xl font-bold font-mono text-slate-900">{totalDPT}</span>
+      {/* KPI Counters (3D Card Hover Depth) */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5 text-xs">
+        <div className="p-4 rounded-2xl bg-[#042017]/80 backdrop-blur-md border border-emerald-500/25 shadow-lg shadow-black/30 transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/40">
+          <span className="text-emerald-300/70 text-[11px] block">Total DPT</span>
+          <span className="text-2xl font-bold font-mono text-white mt-0.5 block">{totalDPT}</span>
         </div>
-        <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
-          <span className="text-emerald-800 text-[11px] block">Pemilih Siswa</span>
-          <span className="text-xl font-bold font-mono text-emerald-900">{totalSiswa}</span>
+        <div className="p-4 rounded-2xl bg-[#042017]/80 backdrop-blur-md border border-emerald-500/25 shadow-lg shadow-black/30 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/50">
+          <span className="text-emerald-400 text-[11px] block">Pemilih Siswa</span>
+          <span className="text-2xl font-bold font-mono text-emerald-300 mt-0.5 block">{totalSiswa}</span>
         </div>
-        <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200">
-          <span className="text-blue-800 text-[11px] block">Pemilih Guru</span>
-          <span className="text-xl font-bold font-mono text-blue-900">{totalGuru}</span>
+        <div className="p-4 rounded-2xl bg-[#042017]/80 backdrop-blur-md border border-emerald-500/25 shadow-lg shadow-black/30 transition-all duration-300 hover:-translate-y-1 hover:border-orange-400/50">
+          <span className="text-orange-400 text-[11px] block">Pemilih Guru</span>
+          <span className="text-2xl font-bold font-mono text-orange-300 mt-0.5 block">{totalGuru}</span>
         </div>
-        <div className="p-3.5 rounded-xl bg-white border border-slate-200">
-          <span className="text-emerald-700 text-[11px] block">Sudah Memilih</span>
-          <span className="text-xl font-bold font-mono text-emerald-700">{totalSudah}</span>
+        <div className="p-4 rounded-2xl bg-[#042017]/80 backdrop-blur-md border border-emerald-500/25 shadow-lg shadow-black/30 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/50">
+          <span className="text-emerald-400 text-[11px] block">Sudah Memilih</span>
+          <span className="text-2xl font-bold font-mono text-emerald-400 mt-0.5 block">{totalSudah}</span>
         </div>
-        <div className="p-3.5 rounded-xl bg-white border border-slate-200 col-span-2 sm:col-span-1">
-          <span className="text-amber-700 text-[11px] block">Belum Memilih</span>
-          <span className="text-xl font-bold font-mono text-amber-700">{totalBelum}</span>
+        <div className="p-4 rounded-2xl bg-[#042017]/80 backdrop-blur-md border border-emerald-500/25 shadow-lg shadow-black/30 col-span-2 sm:col-span-1 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400/50">
+          <span className="text-amber-400 text-[11px] block">Belum Memilih</span>
+          <span className="text-2xl font-bold font-mono text-amber-300 mt-0.5 block">{totalBelum}</span>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-[#042017]/80 backdrop-blur-md rounded-2xl border border-emerald-500/25 p-4 shadow-xl flex flex-col md:flex-row gap-3 items-center justify-between">
         {/* Search */}
         <div className="relative w-full md:w-80">
           <input
@@ -415,23 +418,23 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari nama, NISN/NIP, kelas, atau token..."
-            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-700 bg-slate-50 focus:bg-white"
+            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-emerald-500/30 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 bg-[#021810] text-white placeholder:text-emerald-300/40"
           />
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-emerald-400/60 absolute left-3 top-2.5" />
         </div>
 
         {/* Filter Controls */}
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           {/* Jenis Filter */}
-          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl">
+          <div className="flex items-center gap-1 p-1 bg-black/40 border border-emerald-500/20 rounded-xl">
             {(['semua', 'siswa', 'guru'] as const).map((j) => (
               <button
                 key={j}
                 onClick={() => setJenisFilter(j)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all cursor-pointer ${
                   jenisFilter === j
-                    ? 'bg-white text-emerald-950 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 shadow-md border border-orange-500/30'
+                    : 'text-emerald-300/70 hover:text-white'
                 }`}
               >
                 {j === 'semua' ? 'Semua Jenis' : j}
@@ -440,15 +443,15 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
           </div>
 
           {/* Status Filter */}
-          <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl">
+          <div className="flex items-center gap-1 p-1 bg-black/40 border border-emerald-500/20 rounded-xl">
             {(['semua', 'sudah', 'belum'] as const).map((s) => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-all cursor-pointer ${
                   statusFilter === s
-                    ? 'bg-white text-emerald-950 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 shadow-md border border-orange-500/30'
+                    : 'text-emerald-300/70 hover:text-white'
                 }`}
               >
                 {s === 'semua'
@@ -462,62 +465,62 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         </div>
       </div>
 
-      {/* Main DPT Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+      {/* Main DPT Table (Dark Glassmorphism) */}
+      <div className="bg-[#042017]/80 backdrop-blur-xl rounded-3xl border border-emerald-500/25 overflow-hidden shadow-2xl shadow-black/50">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+            <thead className="bg-[#021810]/90 border-b border-emerald-500/20 text-emerald-300 font-bold uppercase tracking-wider">
               <tr>
-                <th className="px-4 py-3">No</th>
-                <th className="px-4 py-3">Jenis</th>
-                <th className="px-4 py-3">Nomor Induk (NISN/NIP)</th>
-                <th className="px-4 py-3">Nama Pemilih</th>
-                <th className="px-4 py-3">Kelas / Jabatan</th>
-                <th className="px-4 py-3">Token 5 Digit</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Aksi</th>
+                <th className="px-4 py-3.5">No</th>
+                <th className="px-4 py-3.5">Jenis</th>
+                <th className="px-4 py-3.5">Nomor Induk</th>
+                <th className="px-4 py-3.5">Nama Pemilih</th>
+                <th className="px-4 py-3.5">Kelas / Jabatan</th>
+                <th className="px-4 py-3.5">Token 5 Digit</th>
+                <th className="px-4 py-3.5">Status</th>
+                <th className="px-4 py-3.5 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
+            <tbody className="divide-y divide-emerald-500/10 text-emerald-100">
               {filtered.length > 0 ? (
                 filtered.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-4 py-3 font-mono text-slate-400">{index + 1}</td>
+                  <tr key={item.id} className="hover:bg-emerald-900/30 transition-colors">
+                    <td className="px-4 py-3 font-mono text-emerald-400/60">{index + 1}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
                           item.jenis === 'guru'
-                            ? 'bg-blue-50 text-blue-800 border border-blue-200'
-                            : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            ? 'bg-orange-950/80 text-orange-300 border border-orange-500/40'
+                            : 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40'
                         }`}
                       >
                         {item.jenis}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-mono text-slate-600">{item.nisn}</td>
-                    <td className="px-4 py-3 font-semibold text-slate-900">{item.nama}</td>
-                    <td className="px-4 py-3">{item.kelas}</td>
+                    <td className="px-4 py-3 font-mono text-emerald-300/80">{item.nisn}</td>
+                    <td className="px-4 py-3 font-semibold text-white">{item.nama}</td>
+                    <td className="px-4 py-3 text-emerald-200/80">{item.kelas}</td>
                     <td className="px-4 py-3">
                       <button
                         type="button"
                         onClick={() => handleCopyToken(item)}
-                        className="inline-flex items-center gap-1.5 font-mono font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-950 px-2 py-0.5 rounded border border-emerald-200 tracking-wider transition-colors cursor-pointer group"
+                        className="inline-flex items-center gap-1.5 font-mono font-bold bg-[#062c20] hover:bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-lg border border-orange-500/30 tracking-wider transition-colors cursor-pointer group shadow-2xs"
                         title="Klik untuk salin token 5 digit"
                       >
                         <span>{item.token}</span>
-                        <Copy className="w-3 h-3 text-emerald-600 group-hover:text-emerald-800 transition-colors" />
+                        <Copy className="w-3 h-3 text-orange-400/70 group-hover:text-orange-300 transition-colors" />
                       </button>
                     </td>
                     <td className="px-4 py-3">
                       {item.status === 'sudah' ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-700" />
-                          Sudah Memilih
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          Sudah
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                          <Clock className="w-3 h-3 text-amber-600" />
-                          Belum Memilih
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-950/80 text-amber-300 border border-amber-500/30">
+                          <Clock className="w-3 h-3 text-amber-400" />
+                          Belum
                         </span>
                       )}
                     </td>
@@ -525,14 +528,14 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => setEditingVoter({ ...item })}
-                          className="p-1.5 text-slate-500 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-emerald-300 hover:text-orange-300 hover:bg-orange-500/20 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-orange-500/30"
                           title="Ubah data pemilih"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setDeletingVoter(item)}
-                          className="p-1.5 text-slate-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-950/50 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-rose-500/30"
                           title="Hapus pemilih"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -543,14 +546,14 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-500">
+                  <td colSpan={8} className="px-4 py-12 text-center text-emerald-300/70">
                     <div className="max-w-md mx-auto space-y-2">
-                      <p className="font-bold text-slate-800 text-xs">
+                      <p className="font-bold text-white text-xs">
                         {pemilihList.length === 0
                           ? 'Daftar Pemilih Tetap (DPT) Masih Kosong'
                           : 'Tidak ada pemilih yang sesuai dengan pencarian atau filter.'}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-emerald-400/60">
                         {pemilihList.length === 0
                           ? 'Gunakan tombol "Import XLSX" untuk mengunggah berkas data siswa & guru, atau klik "+ Tambah Pemilih" untuk input manual.'
                           : 'Coba ubah kata kunci pencarian atau sesuaikan filter status dan jenis pemilih.'}
@@ -564,326 +567,399 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         </div>
       </div>
 
-      {/* 1. Modal Tambah Pemilih */}
+      {/* 1. Modal Tambah Pemilih - GAYA MENYAMPING (Side-by-Side Action Dock) */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center">
-                  <UserPlus className="w-4 h-4 text-emerald-800" />
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl border border-emerald-500/30 text-white my-6 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3.5 border-b border-emerald-500/20 mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md">
+                  <UserPlus className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold text-slate-900">
-                  Tambah Pemilih Baru
-                </h3>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    Tambah Pemilih Baru ke DPT
+                  </h3>
+                  <span className="text-[11px] text-emerald-300/80">
+                    Input data di sebelah kiri dan konfirmasi aksi langsung di panel samping kanan
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+                className="text-emerald-400 hover:text-white p-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/20 hover:border-orange-500/40 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveAdd} className="space-y-4">
-              {/* Jenis Pemilih */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Jenis Pemilih
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setFormJenis('siswa')}
-                    className={`py-2 px-3 rounded-xl border font-bold text-xs transition-colors cursor-pointer ${
-                      formJenis === 'siswa'
-                        ? 'bg-emerald-900 text-white border-emerald-900 shadow-xs'
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    Siswa
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormJenis('guru')}
-                    className={`py-2 px-3 rounded-xl border font-bold text-xs transition-colors cursor-pointer ${
-                      formJenis === 'guru'
-                        ? 'bg-blue-900 text-white border-blue-900 shadow-xs'
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    Guru / Staf
-                  </button>
+            <form onSubmit={handleSaveAdd}>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                {/* LEFT COLUMN: Input Fields */}
+                <div className="md:col-span-7 space-y-4">
+                  {/* Jenis Pemilih */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1.5">
+                      Kategori Pemilih
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormJenis('siswa')}
+                        className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all cursor-pointer ${
+                          formJenis === 'siswa'
+                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-sm'
+                            : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white'
+                        }`}
+                      >
+                        Siswa
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormJenis('guru')}
+                        className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all cursor-pointer ${
+                          formJenis === 'guru'
+                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-sm'
+                            : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white'
+                        }`}
+                      >
+                        Guru / Staf
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Nama */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
+                      Nama Lengkap Pemilih
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formNama}
+                      onChange={(e) => setFormNama(e.target.value)}
+                      placeholder={formJenis === 'siswa' ? 'Contoh: Nurul Hidayah' : 'Contoh: Ahmad, S.Pd'}
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Nomor Induk */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
+                      {formJenis === 'siswa' ? 'NISN Siswa (10 Digit)' : 'NIP / NUPTK Guru'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formNisn}
+                      onChange={(e) => setFormNisn(e.target.value)}
+                      placeholder={formJenis === 'siswa' ? '10 digit NISN' : '18 digit NIP'}
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white font-mono focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Kelas / Jabatan */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
+                      {formJenis === 'siswa' ? 'Kelas / Jurusan' : 'Jabatan / Mata Pelajaran'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formKelas}
+                      onChange={(e) => setFormKelas(e.target.value)}
+                      placeholder={formJenis === 'siswa' ? 'Contoh: XI TJKT 2' : 'Contoh: Guru Produktif DKV'}
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {formError && (
+                    <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                      <span>{formError}</span>
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              {/* Nama */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Nama Lengkap
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formNama}
-                  onChange={(e) => setFormNama(e.target.value)}
-                  placeholder={formJenis === 'siswa' ? 'Contoh: Nurul Hidayah' : 'Contoh: Ahmad, S.Pd'}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-700"
-                />
-              </div>
+                {/* RIGHT COLUMN: STICKY SIDEBAR DOCK */}
+                <div className="md:col-span-5 bg-[#021810]/90 border border-emerald-500/25 rounded-2xl p-4 space-y-4 md:sticky md:top-2 shadow-lg">
+                  <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
+                    <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">
+                      Aksi & Token Suara
+                    </span>
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                      LIVE DOCK
+                    </span>
+                  </div>
 
-              {/* Nomor Induk */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  {formJenis === 'siswa' ? 'NISN Siswa' : 'NIP / NUPTK Guru'}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formNisn}
-                  onChange={(e) => setFormNisn(e.target.value)}
-                  placeholder={formJenis === 'siswa' ? '10 digit NISN' : '18 digit NIP'}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono focus:outline-none focus:ring-1 focus:ring-emerald-700"
-                />
-              </div>
+                  {/* Top Action Buttons (Always in Plain Sight) */}
+                  <div className="space-y-2">
+                    <button
+                      type="submit"
+                      className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40 transition-all hover:scale-[1.01]"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>Simpan Pemilih</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddModalOpen(false)}
+                      className="w-full py-2 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 transition-colors cursor-pointer"
+                    >
+                      Batal
+                    </button>
+                  </div>
 
-              {/* Kelas / Jabatan */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  {formJenis === 'siswa' ? 'Kelas / Program Keahlian' : 'Jabatan / Guru Mata Pelajaran'}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formKelas}
-                  onChange={(e) => setFormKelas(e.target.value)}
-                  placeholder={formJenis === 'siswa' ? 'Contoh: X TJKT 2' : 'Contoh: Guru Produktif DKV'}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-700"
-                />
-              </div>
+                  {/* Token Box with Regenerate Button */}
+                  <div className="p-3.5 bg-black/40 rounded-xl border border-emerald-500/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider">
+                        Token 5 Digit Otomatis
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRegenerateToken(false)}
+                        className="text-emerald-300 hover:text-orange-400 text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Acak Ulang</span>
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      maxLength={5}
+                      value={formToken}
+                      onChange={(e) => setFormToken(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                      className="w-full px-3 py-2 font-mono font-bold text-center text-xl rounded-xl border border-orange-500/40 bg-[#062c20] tracking-widest text-orange-400 shadow-inner focus:outline-none focus:ring-1 focus:ring-orange-500"
+                    />
+                    <span className="text-[10px] text-emerald-300/60 block text-center">
+                      Digunakan pemilih untuk login di bilik suara publik.
+                    </span>
+                  </div>
 
-              {/* Token Otomatis */}
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                    Token 5 Digit (Otomatis Dibuat)
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => handleRegenerateToken(false)}
-                    className="text-emerald-800 hover:text-emerald-950 text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                  >
-                    <RefreshCw className="w-3 h-3" />
-                    <span>Acak Ulang</span>
-                  </button>
+                  {/* Miniature Card Preview */}
+                  <div className="p-3 bg-[#06291d]/60 rounded-xl border border-emerald-500/20 text-xs space-y-1 text-center">
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
+                      Pratinjau Akun Pemilih
+                    </span>
+                    <p className="font-bold text-white truncate">
+                      {formNama || 'Nama Lengkap'}
+                    </p>
+                    <p className="text-[11px] text-emerald-300/80 truncate">
+                      {formNisn || 'NISN'} · {formKelas || 'Kelas'}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    maxLength={5}
-                    value={formToken}
-                    onChange={(e) => setFormToken(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                    className="w-full px-3 py-1.5 font-mono font-bold text-center text-base rounded-lg border border-slate-300 bg-white tracking-widest text-emerald-950 focus:ring-1 focus:ring-emerald-700 focus:outline-none"
-                  />
-                </div>
-                <span className="text-[10px] text-slate-400 mt-1 block">
-                  Token unik 5 digit angka yang digunakan saat mencoblos di bilik suara.
-                </span>
-              </div>
-
-              {formError && (
-                <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-                  <span>{formError}</span>
-                </div>
-              )}
-
-              <div className="pt-2 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>Simpan Pemilih</span>
-                </button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* 2. Modal Edit Pemilih */}
+      {/* 2. Modal Edit Pemilih - GAYA MENYAMPING (Side-by-Side Action Dock) */}
       {editingVoter && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center">
-                  <Edit3 className="w-4 h-4 text-emerald-800" />
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl border border-emerald-500/30 text-white my-6 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3.5 border-b border-emerald-500/20 mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-900/80 text-orange-400 flex items-center justify-center border border-orange-500/30 shadow-md">
+                  <Edit3 className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold text-slate-900">
-                  Ubah Data Pemilih
-                </h3>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    Ubah Data Pemilih
+                  </h3>
+                  <span className="text-[11px] text-emerald-300/80">
+                    Form input menyamping dengan tombol aksi selalu siap di panel samping
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => setEditingVoter(null)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+                className="text-emerald-400 hover:text-white p-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/20 hover:border-orange-500/40 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Jenis Pemilih
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditingVoter({ ...editingVoter, jenis: 'siswa' })}
-                    className={`py-2 px-3 rounded-xl border font-bold text-xs transition-colors cursor-pointer ${
-                      editingVoter.jenis === 'siswa'
-                        ? 'bg-emerald-900 text-white border-emerald-900 shadow-xs'
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    Siswa
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditingVoter({ ...editingVoter, jenis: 'guru' })}
-                    className={`py-2 px-3 rounded-xl border font-bold text-xs transition-colors cursor-pointer ${
-                      editingVoter.jenis === 'guru'
-                        ? 'bg-blue-900 text-white border-blue-900 shadow-xs'
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    Guru / Staf
-                  </button>
+            <form onSubmit={handleSaveEdit}>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                {/* LEFT COLUMN: Input Fields */}
+                <div className="md:col-span-7 space-y-4">
+                  {/* Jenis Pemilih */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1.5">
+                      Kategori Pemilih
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setEditingVoter({ ...editingVoter, jenis: 'siswa' })}
+                        className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all cursor-pointer ${
+                          editingVoter.jenis === 'siswa'
+                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-sm'
+                            : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white'
+                        }`}
+                      >
+                        Siswa
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingVoter({ ...editingVoter, jenis: 'guru' })}
+                        className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all cursor-pointer ${
+                          editingVoter.jenis === 'guru'
+                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-sm'
+                            : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white'
+                        }`}
+                      >
+                        Guru / Staf
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Nama */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
+                      Nama Lengkap
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editingVoter.nama}
+                      onChange={(e) => setEditingVoter({ ...editingVoter, nama: e.target.value })}
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Nomor Induk */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
+                      {editingVoter.jenis === 'guru' ? 'NIP / NUPTK Guru' : 'NISN Siswa'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editingVoter.nisn}
+                      onChange={(e) => setEditingVoter({ ...editingVoter, nisn: e.target.value })}
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white font-mono focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Kelas / Jabatan */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
+                      {editingVoter.jenis === 'guru' ? 'Jabatan / Mapel' : 'Kelas / Jurusan'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editingVoter.kelas}
+                      onChange={(e) => setEditingVoter({ ...editingVoter, kelas: e.target.value })}
+                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Nama Lengkap
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editingVoter.nama}
-                  onChange={(e) => setEditingVoter({ ...editingVoter, nama: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:ring-1 focus:ring-emerald-700 focus:outline-none"
-                />
-              </div>
+                {/* RIGHT COLUMN: STICKY SIDEBAR DOCK */}
+                <div className="md:col-span-5 bg-[#021810]/90 border border-emerald-500/25 rounded-2xl p-4 space-y-4 md:sticky md:top-2 shadow-lg">
+                  <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
+                    <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">
+                      Aksi & Token
+                    </span>
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                      EDIT DOCK
+                    </span>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  {editingVoter.jenis === 'guru' ? 'NIP / NUPTK' : 'NISN'}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editingVoter.nisn}
-                  onChange={(e) => setEditingVoter({ ...editingVoter, nisn: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 font-mono focus:ring-1 focus:ring-emerald-700 focus:outline-none"
-                />
-              </div>
+                  {/* Top Action Buttons (Always Accessible Beside) */}
+                  <div className="space-y-2">
+                    <button
+                      type="submit"
+                      className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40 transition-all hover:scale-[1.01]"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>Simpan Perubahan</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingVoter(null)}
+                      className="w-full py-2 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 transition-colors cursor-pointer"
+                    >
+                      Batal
+                    </button>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  {editingVoter.jenis === 'guru' ? 'Jabatan / Mapel' : 'Kelas / Jurusan'}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editingVoter.kelas}
-                  onChange={(e) => setEditingVoter({ ...editingVoter, kelas: e.target.value })}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:ring-1 focus:ring-emerald-700 focus:outline-none"
-                />
-              </div>
+                  {/* Token Box */}
+                  <div className="p-3.5 bg-black/40 rounded-xl border border-emerald-500/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider">
+                        Token 5 Digit
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRegenerateToken(true)}
+                        className="text-emerald-300 hover:text-orange-400 text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Generate Baru</span>
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      maxLength={5}
+                      value={editingVoter.token}
+                      onChange={(e) =>
+                        setEditingVoter({
+                          ...editingVoter,
+                          token: e.target.value.replace(/\D/g, '').slice(0, 5),
+                        })
+                      }
+                      className="w-full px-3 py-2 font-mono font-bold text-center text-xl rounded-xl border border-orange-500/40 bg-[#062c20] tracking-widest text-orange-400 shadow-inner focus:outline-none focus:ring-1 focus:ring-orange-500"
+                    />
+                  </div>
 
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                    Token 5 Digit
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => handleRegenerateToken(true)}
-                    className="text-emerald-800 hover:text-emerald-950 text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                  >
-                    <RefreshCw className="w-3 h-3" />
-                    <span>Generate Token Baru</span>
-                  </button>
+                  {/* Mini Card Preview */}
+                  <div className="p-3 bg-[#06291d]/60 rounded-xl border border-emerald-500/20 text-xs space-y-1 text-center">
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
+                      Pratinjau Pemilih
+                    </span>
+                    <p className="font-bold text-white truncate">{editingVoter.nama}</p>
+                    <p className="text-[11px] text-emerald-300/80 truncate">
+                      {editingVoter.nisn} · {editingVoter.kelas}
+                    </p>
+                  </div>
                 </div>
-                <input
-                  type="text"
-                  maxLength={5}
-                  value={editingVoter.token}
-                  onChange={(e) =>
-                    setEditingVoter({
-                      ...editingVoter,
-                      token: e.target.value.replace(/\D/g, '').slice(0, 5),
-                    })
-                  }
-                  className="w-full px-3 py-1.5 font-mono font-bold text-center text-base rounded-lg border border-slate-300 bg-white tracking-widest text-emerald-950 focus:ring-1 focus:ring-emerald-700 focus:outline-none"
-                />
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingVoter(null)}
-                  className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>Simpan Perubahan</span>
-                </button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* 3. Modal Konfirmasi Hapus */}
+      {/* 3. Modal Konfirmasi Hapus (Dark Glassmorphism) */}
       {deletingVoter && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center animate-in fade-in duration-150">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto mb-3">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#031d14] rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-rose-500/40 text-center animate-in fade-in duration-150 text-white">
+            <div className="w-12 h-12 rounded-2xl bg-rose-950/80 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto mb-3 shadow-md">
               <Trash2 className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900 mb-1">
+            <h3 className="text-base font-bold text-white mb-1">
               Hapus Data Pemilih?
             </h3>
-            <p className="text-xs text-slate-600 mb-5 leading-relaxed">
-              Anda akan menghapus pemilih <strong className="text-slate-900">{deletingVoter.nama}</strong> ({deletingVoter.kelas}) dengan token <span className="font-mono font-bold">{deletingVoter.token}</span>.
+            <p className="text-xs text-emerald-200/80 mb-5 leading-relaxed">
+              Anda akan menghapus pemilih <strong className="text-orange-400">{deletingVoter.nama}</strong> ({deletingVoter.kelas}) dengan token <span className="font-mono font-bold text-white">{deletingVoter.token}</span>.
             </p>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setDeletingVoter(null)}
-                className="py-2.5 px-4 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
+                className="py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 cursor-pointer"
               >
                 Batal
               </button>
               <button
                 type="button"
                 onClick={handleConfirmDelete}
-                className="py-2.5 px-4 rounded-xl bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs shadow-sm cursor-pointer"
+                className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs shadow-md cursor-pointer border border-rose-400/30"
               >
                 Ya, Hapus
               </button>
@@ -892,27 +968,27 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         </div>
       )}
 
-      {/* 4. Modal Import XLSX */}
+      {/* 4. Modal Import XLSX (Dark Glassmorphism) */}
       {isImportModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center">
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-800" />
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-emerald-500/30 text-white animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-3.5 border-b border-emerald-500/20 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-900/80 text-orange-400 flex items-center justify-center border border-orange-500/30 shadow-md">
+                  <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">
+                  <h3 className="text-base font-bold text-white">
                     Import Pemilih dari Berkas Excel (.xlsx)
                   </h3>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-emerald-300/80">
                     Otomatis generate token 5 digit untuk setiap pemilih
                   </span>
                 </div>
               </div>
               <button
                 onClick={() => setIsImportModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+                className="text-emerald-400 hover:text-white p-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/20 hover:border-orange-500/40 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -920,20 +996,20 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
 
             <div className="space-y-4">
               {/* Template notice */}
-              <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-950 flex items-center justify-between">
+              <div className="p-3.5 bg-emerald-950/70 rounded-2xl border border-emerald-500/30 text-xs text-emerald-200 flex items-center justify-between">
                 <span>Belum memiliki format berkas yang sesuai?</span>
                 <button
                   type="button"
                   onClick={downloadVoterTemplate}
-                  className="font-bold underline text-emerald-900 hover:text-emerald-700 shrink-0 ml-2 cursor-pointer flex items-center gap-1"
+                  className="font-bold underline text-orange-400 hover:text-orange-300 shrink-0 ml-2 cursor-pointer flex items-center gap-1"
                 >
-                  <Download className="w-3 h-3" />
+                  <Download className="w-3.5 h-3.5" />
                   <span>Unduh Template</span>
                 </button>
               </div>
 
               {/* Upload Drop Area */}
-              <div className="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center hover:border-emerald-600 transition-colors bg-slate-50">
+              <div className="border-2 border-dashed border-emerald-500/30 rounded-2xl p-6 text-center hover:border-orange-500/50 transition-colors bg-[#021810]">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -946,11 +1022,11 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
                   htmlFor="excelFileInput"
                   className="cursor-pointer flex flex-col items-center justify-center"
                 >
-                  <UploadCloud className="w-10 h-10 text-emerald-800 mb-2" />
-                  <span className="text-xs font-bold text-slate-800">
+                  <UploadCloud className="w-10 h-10 text-orange-400 mb-2" />
+                  <span className="text-xs font-bold text-white">
                     Pilih Berkas Excel (.xlsx)
                   </span>
-                  <span className="text-[11px] text-slate-400 mt-0.5">
+                  <span className="text-[11px] text-emerald-400/60 mt-0.5">
                     Klik untuk memilih berkas dari komputer Anda
                   </span>
                 </label>

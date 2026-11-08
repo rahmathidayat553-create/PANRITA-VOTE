@@ -72,3 +72,14 @@ export const defaultPengaturan = initialPengaturan;
 export const initialPaslon: Paslon[] = [];
 export const initialPemilih: Pemilih[] = [];
 export const initialLogs: LogAktivitas[] = [];
+
+export interface ElectionBackup {
+  version: string;
+  app: string;
+  exportedAt: string;
+  sekolah: string;
+  pengaturan: PengaturanPemilihan;
+  paslonList: Paslon[];
+  pemilihList: Pemilih[];
+  logs?: LogAktivitas[];
+}
