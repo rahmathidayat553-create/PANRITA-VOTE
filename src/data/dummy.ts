@@ -53,6 +53,9 @@ export interface PengaturanPemilihan {
   tanggalMulai: string;
   tanggalSelesai: string;
   tokenAdmin: string;
+  pinHasilSuara?: string; // Default: '789123'
+  kuotaIntipSuara?: number; // Maksimal 2x per pemilihan
+  intipAktifSampai?: string | null; // ISO timestamp berakhirnya sesi 2 menit
 }
 
 export const initialPengaturan: PengaturanPemilihan = {
@@ -64,6 +67,9 @@ export const initialPengaturan: PengaturanPemilihan = {
   tanggalMulai: "2026-11-05 08:00 WITA",
   tanggalSelesai: "2026-11-05 14:00 WITA",
   tokenAdmin: "ADMIN-PANRITA-2026",
+  pinHasilSuara: "789123",
+  kuotaIntipSuara: 2,
+  intipAktifSampai: null,
 };
 
 export const defaultPengaturan = initialPengaturan;

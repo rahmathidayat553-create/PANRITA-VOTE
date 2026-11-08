@@ -1,6 +1,6 @@
 {
-  "summary": "Rencana implementasi integrasi database awan Firebase Firestore untuk PanritaVote OSIS SMKN 9 Bulukumba. Menghapus seluruh data dummy dan label uji coba, menyediakan database bersih yang siap diisi mandiri oleh panitia melalui menu admin, konfigurasi status awal pemilihan belum dibuka, serta arsitektur sinkronisasi real-time bilik suara dan panel admin.",
-  "updatedAt": "2026-11-05T04:03:14.004554366Z",
-  "requestFeedback": true,
-  "userFacing": true
+  "summary":  "Rencana implementasi perlindungan kerahasiaan hasil suara paslon selama pemilihan berlangsung:\n- Menyembunyikan grafik batang dan rincian perolehan suara masing-masing paslon selama status pemilihan 'aktif', sementara metrik partisipasi dan total suara masuk tetap terbuka.\n- Menerapkan mekanisme intip hasil suara dengan PIN khusus 6 digit (default 789123 yang dapat diatur di menu Pengaturan).\n- Pembatasan durasi intip hasil suara selama tepat 2 menit (120 detik) dengan countdown timer HUD, serta kuota maksimal 2 kali per sesi pemilihan yang tersinkronisasi di Firestore untuk seluruh panitia.\n- Pembukaan otomatis hasil lengkap saat status pemilihan diubah menjadi 'ditutup'.",
+  "updatedAt":  "2026-11-08T14:22:37.491660404Z",
+  "requestFeedback":  true,
+  "userFacing":  true
 }

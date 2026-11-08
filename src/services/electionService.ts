@@ -67,6 +67,113 @@ export async function savePengaturan(newSettings: PengaturanPemilihan): Promise<
 }
 
 /**
+ * Mekanisme Buka Kunci Hasil Suara Paslon Sementara (2 Menit, Kuota Max 2x)
+ */
+export async function unlockHasilSuaraDenganPin(
+  enteredPin: string,
+  current: PengaturanPemilihan
+): Promise<{ success: boolean; message: string; remainingQuota?: number; expiresAt?: string }> {
+  const currentPin = (current.pinHasilSuara || '789123').trim();
+  const currentQuota = typeof current.kuotaIntipSuara === 'number' ? current.kuotaIntipSuara : 2;
+
+  // 1. Cek Kuota
+  if (currentQuota <= 0) {
+    return {
+      success: false,
+      message: 'Kesempatan intip hasil suara sudah habis (maksimal 2 kali per pemilihan). Hasil resmi akan terbuka setelah pemilihan ditutup.',
+      remainingQuota: 0,
+    };
+  }
+
+  // 2. Cek Kesesuaian PIN
+  if (enteredPin.trim() !== currentPin) {
+    return {
+      success: false,
+      message: 'PIN khusus salah. Harap periksa kembali PIN 6 digit atau tanyakan ke panitia inti.',
+      remainingQuota: currentQuota,
+    };
+  }
+
+  // 3. Hitung Masa Aktif 2 Menit (120 Detik)
+  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+  const nextQuota = Math.max(0, currentQuota - 1);
+
+  const docRef = doc(db, PENGATURAN_DOC_PATH);
+  await updateDoc(docRef, {
+    kuotaIntipSuara: nextQuota,
+    intipAktifSampai: expiresAt,
+  });
+
+  // 4. Catat Log Otorisasi
+  const timestamp =
+    new Date().toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }) + ' WITA';
+  await addLogToDb({
+    id: `log-${Date.now()}`,
+    waktu: timestamp,
+    aksi: `Admin membuka akses intip hasil suara paslon selama 2 menit (Sisa kuota: ${nextQuota}/2)`,
+    pengguna: 'Admin Panitia',
+    tipe: 'auth',
+  });
+
+  return {
+    success: true,
+    message: `Akses berhasil dibuka selama 2 menit. Sisa kesempatan: ${nextQuota} kali lagi.`,
+    remainingQuota: nextQuota,
+    expiresAt,
+  };
+}
+
+/**
+ * Kunci Kembali Tampilan Hasil Suara Paslon Seketika
+ */
+export async function lockHasilSuaraNow(): Promise<void> {
+  const docRef = doc(db, PENGATURAN_DOC_PATH);
+  await updateDoc(docRef, {
+    intipAktifSampai: null,
+  });
+
+  const timestamp =
+    new Date().toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }) + ' WITA';
+  await addLogToDb({
+    id: `log-${Date.now()}`,
+    waktu: timestamp,
+    aksi: 'Tampilan hasil suara paslon dikunci kembali',
+    pengguna: 'Admin Panitia',
+    tipe: 'sistem',
+  });
+}
+
+/**
+ * Reset Kuota Intip Suara Kembali Menjadi 2x
+ */
+export async function resetKuotaIntipSuara(): Promise<void> {
+  const docRef = doc(db, PENGATURAN_DOC_PATH);
+  await updateDoc(docRef, {
+    kuotaIntipSuara: 2,
+    intipAktifSampai: null,
+  });
+
+  const timestamp =
+    new Date().toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }) + ' WITA';
+  await addLogToDb({
+    id: `log-${Date.now()}`,
+    waktu: timestamp,
+    aksi: 'Admin mereset kuota intip hasil suara kembali menjadi 2 kali',
+    pengguna: 'Admin Panitia',
+    tipe: 'sistem',
+  });
+}
+
+/**
  * 2. PASANGAN CALON / KANDIDAT (Real-time listener & CRUD)
  */
 export function subscribePaslon(
@@ -294,7 +401,18 @@ export async function resetHasilPemilihanInDb(
     console.warn('Catatan: Koleksi suara mungkin kosong atau tidak dapat diakses:', err);
   }
 
-  // 4. Catat Log Sistem
+  // 4. Reset kuota intip suara kembali 2x dan bersihkan timer intip
+  try {
+    const docRef = doc(db, PENGATURAN_DOC_PATH);
+    await updateDoc(docRef, {
+      kuotaIntipSuara: 2,
+      intipAktifSampai: null,
+    });
+  } catch (err) {
+    console.warn('Gagal reset status kuota intip:', err);
+  }
+
+  // 5. Catat Log Sistem
   const timestamp =
     new Date().toLocaleTimeString('id-ID', {
       hour: '2-digit',
@@ -303,7 +421,7 @@ export async function resetHasilPemilihanInDb(
   await addLogToDb({
     id: `log-${Date.now()}`,
     waktu: timestamp,
-    aksi: 'Admin mereset seluruh perolehan suara (hasil bilik suara dinolkan kembali)',
+    aksi: 'Admin mereset seluruh perolehan suara (hasil bilik suara dinolkan kembali & kuota intip direset)',
     pengguna: 'Admin Panitia',
     tipe: 'sistem',
   });

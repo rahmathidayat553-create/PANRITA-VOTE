@@ -28,6 +28,9 @@ import {
   resetHasilPemilihanInDb,
   resetTotalDatabaseInDb,
   restoreCompleteBackupToDb,
+  unlockHasilSuaraDenganPin,
+  lockHasilSuaraNow,
+  resetKuotaIntipSuara,
 } from './services/electionService';
 import { Toast, ToastData } from './components/Toast';
 import { Cinematic3DBackground } from './components/common/Cinematic3DBackground';
@@ -637,6 +640,19 @@ export default function App() {
     }
   };
 
+  // 4. Intip Hasil Suara Paslon (PIN Khusus, Durasi 2 Menit, Kuota Max 2x)
+  const handleUnlockHasilSuara = async (pin: string) => {
+    return await unlockHasilSuaraDenganPin(pin, pengaturan);
+  };
+
+  const handleLockHasilSuara = async () => {
+    await lockHasilSuaraNow();
+  };
+
+  const handleResetKuotaIntip = async () => {
+    await resetKuotaIntipSuara();
+  };
+
   return (
     <div className="min-h-screen bg-[#02130c] font-sans text-slate-100 antialiased selection:bg-orange-500/30 selection:text-orange-200 flex flex-col relative overflow-x-hidden">
       {/* 3D Cinematic Background in Three.js (Fixed behind UI) */}
@@ -707,6 +723,9 @@ export default function App() {
               pemilihList={pemilihList}
               pengaturan={pengaturan}
               logs={logs}
+              onUnlockHasilSuara={handleUnlockHasilSuara}
+              onLockHasilSuara={handleLockHasilSuara}
+              onShowToast={showToast}
             />
           )}
 
@@ -720,6 +739,7 @@ export default function App() {
               onResetVotes={handleResetVotes}
               onResetFactory={handleResetFactory}
               onRestoreData={handleRestoreBackup}
+              onResetKuotaIntip={handleResetKuotaIntip}
               onShowToast={showToast}
             />
           )}
@@ -750,7 +770,13 @@ export default function App() {
           )}
 
           {adminMenu === 'rekap' && (
-            <AdminRekapitulasi paslonList={paslonList} />
+            <AdminRekapitulasi
+              paslonList={paslonList}
+              pengaturan={pengaturan}
+              onUnlockHasilSuara={handleUnlockHasilSuara}
+              onLockHasilSuara={handleLockHasilSuara}
+              onShowToast={showToast}
+            />
           )}
 
           {adminMenu === 'log' && <AdminLog logs={logs} />}

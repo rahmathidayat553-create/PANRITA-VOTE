@@ -39,6 +39,7 @@ interface AdminPemilihanProps {
   onResetVotes?: () => Promise<void>;
   onResetFactory?: () => Promise<void>;
   onRestoreData?: (backup: ElectionBackup) => Promise<void>;
+  onResetKuotaIntip?: () => Promise<void>;
   onShowToast?: (data: ToastData) => void;
 }
 
@@ -53,6 +54,7 @@ export const AdminPemilihan: React.FC<AdminPemilihanProps> = ({
   onResetVotes,
   onResetFactory,
   onRestoreData,
+  onResetKuotaIntip,
   onShowToast,
 }) => {
   const [activeTab, setActiveTab] = useState<TabKey>('umum');
@@ -422,6 +424,74 @@ export const AdminPemilihan: React.FC<AdminPemilihanProps> = ({
                   Ketik token ini pada bilik suara publik (default: 99999) untuk langsung membuka portal login panitia.
                 </p>
               </div>
+
+              {/* FITUR KERAHASIAAN SUARA PASLON: PIN KHUSUS & KUOTA INTIP */}
+              <div className="p-4 rounded-2xl bg-[#021810] border border-orange-500/30 space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
+                  <span className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
+                    [KEBIJAKAN_KERAHASIAAN // INTIP_SUARA]
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">
+                    KUOTA: {form.kuotaIntipSuara ?? 2}/2 KALI
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-emerald-200/90 uppercase tracking-wider mb-1">
+                      PIN Khusus Intip Suara (6 Digit)
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      value={form.pinHasilSuara || '789123'}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          pinHasilSuara: e.target.value.replace(/\D/g, '').slice(0, 6),
+                        })
+                      }
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-orange-500/40 font-mono text-sm font-bold text-orange-400 bg-[#02130c] focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none"
+                    />
+                    <p className="text-[10px] text-emerald-300/60 mt-1">
+                      PIN untuk membuka kunci hasil paslon selama 2 menit saat pemilihan aktif.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-emerald-200/90 uppercase tracking-wider mb-1">
+                      Status Kuota Intip Suara
+                    </label>
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-[#02130c] border border-emerald-500/25">
+                      <span className="text-xs font-mono font-bold text-white">
+                        Sisa {form.kuotaIntipSuara ?? 2} dari 2x
+                      </span>
+                      {onResetKuotaIntip && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            await onResetKuotaIntip();
+                            setForm((prev) => ({ ...prev, kuotaIntipSuara: 2 }));
+                            onShowToast?.({
+                              type: 'success',
+                              title: 'Kuota Direset',
+                              message: 'Kuota intip hasil suara panitia berhasil dikembalikan menjadi 2 kali.',
+                              code: '[QUOTA_RESET // 2_OF_2]',
+                              duration: 3000,
+                            });
+                          }}
+                          className="px-2.5 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 rounded-lg text-[11px] font-semibold border border-emerald-500/30 transition-colors cursor-pointer"
+                        >
+                          Reset Kuota 2x
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-emerald-300/60 mt-1">
+                      Maksimal 2 kali intip suara selama periode pemilihan berlangsung.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Kolom Kanan: Sticky Sidebar Action Dock (Gaya Form Menyamping) */}
@@ -451,6 +521,14 @@ export const AdminPemilihan: React.FC<AdminPemilihanProps> = ({
                   <div className="flex items-center justify-between">
                     <span>Status Saat Ini:</span>
                     <span className="font-mono font-bold text-orange-400 uppercase">{form.status}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>PIN Intip Suara:</span>
+                    <span className="font-mono font-bold text-white">{form.pinHasilSuara || '789123'}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Kuota Intip:</span>
+                    <span className="font-mono font-bold text-orange-300">{form.kuotaIntipSuara ?? 2} / 2 Kali</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>DPT Aktif:</span>
