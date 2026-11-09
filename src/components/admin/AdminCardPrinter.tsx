@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pemilih } from '../../data/dummy';
-import { Printer, X, Filter, CheckCircle2, Shield, Scissors } from 'lucide-react';
+import { Printer, X, Filter, CheckCircle2, Shield, Scissors, ArrowLeft } from 'lucide-react';
 import { SafeImage } from '../SafeImage';
 
 interface AdminCardPrinterProps {
@@ -30,42 +30,46 @@ export const AdminCardPrinter: React.FC<AdminCardPrinterProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex flex-col items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      {/* Container */}
-      <div className="bg-white rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-        {/* Top Control Bar (Hidden when printing via print:hidden) */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3 shrink-0 print:hidden">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-900 text-white flex items-center justify-center shadow-xs">
-              <Printer className="w-5 h-5 text-emerald-300" />
+    <div className="w-full flex flex-col space-y-4 animate-in fade-in">
+      {/* Top Breadcrumb & Back Bar (Hidden in print) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-3xl bg-[#042017]/90 backdrop-blur-xl border border-emerald-500/25 text-white shadow-xl print:hidden">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onClose}
+            className="p-2.5 rounded-xl bg-[#021810] border border-emerald-500/30 text-emerald-300 hover:text-white hover:border-orange-500/50 transition-colors flex items-center gap-2 text-xs font-semibold cursor-pointer shadow-md"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Kembali ke Daftar DPT</span>
+          </button>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-bold text-white">
+                Cetak Lembar Kartu Pemilih
+              </h2>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                HALAMAN PENUH
+              </span>
             </div>
-            <div>
-              <h3 className="text-base font-bold text-slate-900">
-                Cetak Lembar Kartu Pemilih (Format PDF / Kertas A4)
-              </h3>
-              <p className="text-xs text-slate-500">
-                Tata letak kisi kartu saku hemat kertas (8 kartu per lembar A4 dengan garis potong).
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrint}
-              disabled={cardsToPrint.length === 0}
-              className="px-4 py-2 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <Printer className="w-4 h-4" />
-              <span>Cetak / Simpan PDF ({cardsToPrint.length} Kartu)</span>
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-200 transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <p className="text-xs text-emerald-300/80">
+              Format lembar A4 hemat kertas (8 kartu per lembar dengan garis potong dan token unik).
+            </p>
           </div>
         </div>
+
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={handlePrint}
+            disabled={cardsToPrint.length === 0}
+            className="px-4 py-2.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-md shadow-orange-950/40 flex items-center gap-2 cursor-pointer disabled:opacity-50 border border-orange-400/40"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Cetak / Simpan PDF ({cardsToPrint.length} Kartu)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Container */}
+      <div className="bg-white rounded-3xl w-full flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
 
         {/* Filter Controls (Hidden in print) */}
         <div className="p-3 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 print:hidden">

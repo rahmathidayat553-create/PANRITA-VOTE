@@ -20,6 +20,8 @@ import {
   FileDown,
   ShieldCheck,
   Copy,
+  ArrowLeft,
+  Sparkles,
 } from 'lucide-react';
 import {
   downloadVoterTemplate,
@@ -53,19 +55,17 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
   const [statusFilter, setStatusFilter] = useState<'semua' | 'sudah' | 'belum'>('semua');
   const [jenisFilter, setJenisFilter] = useState<'semua' | 'siswa' | 'guru'>('semua');
 
-  // Modal States
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  // SubView States: 'list' | 'add' | 'edit' | 'import' | 'export' | 'print'
+  type DptSubView = 'list' | 'add' | 'edit' | 'import' | 'export' | 'print';
+  const [subView, setSubView] = useState<DptSubView>('list');
   const [editingVoter, setEditingVoter] = useState<Pemilih | null>(null);
   const [deletingVoter, setDeletingVoter] = useState<Pemilih | null>(null);
-  const [isPrinterOpen, setIsPrinterOpen] = useState(false);
 
   // Export CSV State
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exportScope, setExportScope] = useState<'all' | 'filtered'>('all');
   const [exportSuccessMessage, setExportSuccessMessage] = useState<string | null>(null);
 
   // Import State
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const [importPreview, setImportPreview] = useState<Pemilih[] | null>(null);
@@ -92,7 +92,7 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
 
   const handleOpenAdd = () => {
     resetAddForm();
-    setIsAddModalOpen(true);
+    setSubView('add');
   };
 
   const handleRegenerateToken = (isEdit = false) => {
@@ -164,7 +164,7 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
     };
 
     onAddPemilih(newVoter);
-    setIsAddModalOpen(false);
+    setSubView('list');
     resetAddForm();
   };
 
@@ -186,6 +186,7 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
 
     onUpdatePemilih(editingVoter);
     setEditingVoter(null);
+    setSubView('list');
   };
 
   // Confirm Delete
@@ -219,7 +220,7 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
     if (importPreview && importPreview.length > 0) {
       onImportPemilih(importPreview);
       setImportPreview(null);
-      setIsImportModalOpen(false);
+      setSubView('list');
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -243,7 +244,7 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
     const filename = `backup_dpt_${scopeTag}_smkn9_bulukumba_${dateStr}.csv`;
 
     exportVotersToCsv(targetList, filename);
-    setIsExportModalOpen(false);
+    setSubView('list');
     onShowToast?.({
       type: 'success',
       title: 'Berkas CSV Diunduh',
@@ -282,8 +283,10 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
 
   return (
     <div className="space-y-6 max-w-6xl">
-      {/* Top Header & Actions Bar (Dark Glassmorphism) */}
-      <div className="p-6 rounded-3xl bg-[#042017]/80 backdrop-blur-xl border border-emerald-500/25 shadow-xl shadow-black/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      {subView === 'list' && (
+        <div className="space-y-6">
+          {/* Top Header & Actions Bar (Dark Glassmorphism) */}
+          <div className="p-6 rounded-3xl bg-[#042017]/80 backdrop-blur-xl border border-emerald-500/25 shadow-xl shadow-black/40 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 rounded-full bg-orange-500" />
@@ -300,10 +303,10 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => {
-              setIsPrinterOpen(true);
+              setSubView('print');
               onShowToast?.({
                 type: 'info',
-                title: 'Memuat Lembar Kartu Suara',
+                title: 'Halaman Cetak Kartu',
                 message: 'Menyiapkan modul cetak kartu DPT dengan QR Code & 5 digit token.',
                 code: '[PRINT_JOB_PREPARED]',
                 duration: 2500,
@@ -318,7 +321,7 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
           <button
             onClick={() => {
               setExportScope(filtered.length !== pemilihList.length ? 'filtered' : 'all');
-              setIsExportModalOpen(true);
+              setSubView('export');
             }}
             className="px-3.5 py-2 bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/30 text-emerald-200 font-semibold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer hover:border-orange-500/40"
             title="Ekspor daftar pemilih ke berkas CSV untuk cadangan (backup) dan audit manual"
@@ -349,7 +352,7 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
             onClick={() => {
               setImportPreview(null);
               setImportError(null);
-              setIsImportModalOpen(true);
+              setSubView('import');
             }}
             className="px-3.5 py-2 bg-emerald-900/70 hover:bg-emerald-800 border border-emerald-500/40 text-emerald-100 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer hover:border-orange-500/40"
           >
@@ -465,6 +468,45 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         </div>
       </div>
 
+      {/* INLINE CONFIRMATION BANNER FOR DELETING VOTER (NO FLOATING MODAL) */}
+      {deletingVoter && (
+        <div className="p-5 rounded-3xl bg-rose-950/80 border-2 border-rose-500/60 shadow-2xl text-white animate-in fade-in duration-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-rose-900/90 text-rose-300 border border-rose-400/40 flex items-center justify-center shrink-0 shadow-md">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <span>Hapus Pemilih {deletingVoter.nama}?</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-200 border border-rose-400/30 uppercase">
+                  KONFIRMASI_HAPUS
+                </span>
+              </h4>
+              <p className="text-xs text-rose-200/90 mt-0.5">
+                Anda akan menghapus data pemilih <strong className="text-white font-bold">{deletingVoter.nama}</strong> ({deletingVoter.kelas}) dengan token <span className="font-mono font-bold text-white">{deletingVoter.token}</span>.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setDeletingVoter(null)}
+              className="flex-1 sm:flex-none py-2.5 px-4 rounded-xl border border-rose-400/30 text-xs font-semibold text-rose-200 hover:bg-rose-900/50 cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmDelete}
+              className="flex-1 sm:flex-none py-2.5 px-5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs shadow-md cursor-pointer border border-rose-400/40 flex items-center justify-center gap-2"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Ya, Hapus Pemilih</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main DPT Table (Dark Glassmorphism) */}
       <div className="bg-[#042017]/80 backdrop-blur-xl rounded-3xl border border-emerald-500/25 overflow-hidden shadow-2xl shadow-black/50">
         <div className="overflow-x-auto">
@@ -527,7 +569,10 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button
-                          onClick={() => setEditingVoter({ ...item })}
+                          onClick={() => {
+                            setEditingVoter({ ...item });
+                            setSubView('edit');
+                          }}
                           className="p-1.5 text-emerald-300 hover:text-orange-300 hover:bg-orange-500/20 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-orange-500/30"
                           title="Ubah data pemilih"
                         >
@@ -566,87 +611,109 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
           </table>
         </div>
       </div>
+    </div>
+  )}
 
-      {/* 1. Modal Tambah Pemilih - GAYA MENYAMPING (Side-by-Side Action Dock) */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-          <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl border border-emerald-500/30 text-white my-6 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3.5 border-b border-emerald-500/20 mb-5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md">
-                  <UserPlus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">
-                    Tambah Pemilih Baru ke DPT
-                  </h3>
-                  <span className="text-[11px] text-emerald-300/80">
-                    Input data di sebelah kiri dan konfirmasi aksi langsung di panel samping kanan
-                  </span>
-                </div>
+      {/* ========================================================================= */}
+      {/* 1. FULL PAGE: TAMBAH PEMILIH BARU                                         */}
+      {/* ========================================================================= */}
+      {subView === 'add' && (
+        <div className="space-y-6 animate-in fade-in duration-150">
+          {/* Top Navigation & Status Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[#042017]/90 backdrop-blur-xl rounded-2xl border border-emerald-500/25 shadow-lg">
+            <button
+              type="button"
+              onClick={() => {
+                setSubView('list');
+                resetAddForm();
+              }}
+              className="flex items-center gap-2 text-xs font-bold text-emerald-300 hover:text-orange-400 transition-colors cursor-pointer group"
+            >
+              <div className="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center group-hover:border-orange-500/50">
+                <ArrowLeft className="w-4 h-4 text-emerald-400 group-hover:text-orange-400" />
               </div>
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="text-emerald-400 hover:text-white p-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/20 hover:border-orange-500/40 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <span>Kembali ke Daftar Pemilih (DPT)</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
+              <span className="text-[11px] font-mono text-emerald-300/80 uppercase tracking-wider">
+                Halaman Penuh · Tambah Pemilih Baru
+              </span>
+            </div>
+          </div>
+
+          {/* Main Form Container */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-[#042017]/85 backdrop-blur-2xl border border-emerald-500/25 shadow-2xl text-white">
+            <div className="flex items-center gap-3 pb-5 border-b border-emerald-500/20 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-lg">
+                <UserPlus className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white tracking-wide">
+                  Formulir Tambah Pemilih Tetap (DPT)
+                </h3>
+                <p className="text-xs text-emerald-300/80">
+                  Lengkapi data pemilih di kolom sebelah kiri dan gunakan panel aksi cepat di sebelah kanan
+                </p>
+              </div>
             </div>
 
             <form onSubmit={handleSaveAdd}>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 {/* LEFT COLUMN: Input Fields */}
-                <div className="md:col-span-7 space-y-4">
+                <div className="lg:col-span-8 space-y-5">
                   {/* Jenis Pemilih */}
                   <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-2">
                       Kategori Pemilih
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
                         onClick={() => setFormJenis('siswa')}
-                        className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all cursor-pointer ${
+                        className={`py-3 px-4 rounded-2xl border font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
                           formJenis === 'siswa'
-                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-sm'
-                            : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white'
+                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-md ring-1 ring-orange-500/30'
+                            : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white hover:border-emerald-500/40'
                         }`}
                       >
-                        Siswa
+                        <span className={`w-2 h-2 rounded-full ${formJenis === 'siswa' ? 'bg-orange-400' : 'bg-emerald-700'}`} />
+                        <span>Siswa / Pelajar</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => setFormJenis('guru')}
-                        className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all cursor-pointer ${
+                        className={`py-3 px-4 rounded-2xl border font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
                           formJenis === 'guru'
-                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-sm'
-                            : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white'
+                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-md ring-1 ring-orange-500/30'
+                            : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white hover:border-emerald-500/40'
                         }`}
                       >
-                        Guru / Staf
+                        <span className={`w-2 h-2 rounded-full ${formJenis === 'guru' ? 'bg-orange-400' : 'bg-emerald-700'}`} />
+                        <span>Guru & Tenaga Kependidikan</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* Nama */}
+                  {/* Nama Lengkap */}
                   <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
-                      Nama Lengkap Pemilih
+                    <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-2">
+                      Nama Lengkap Pemilih <span className="text-orange-400">*</span>
                     </label>
                     <input
                       type="text"
                       required
                       value={formNama}
                       onChange={(e) => setFormNama(e.target.value)}
-                      placeholder={formJenis === 'siswa' ? 'Contoh: Nurul Hidayah' : 'Contoh: Ahmad, S.Pd'}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      placeholder={formJenis === 'siswa' ? 'Contoh: Ahmad Rizky Pratama' : 'Contoh: Dra. Hj. Siti Aminah, M.Pd.'}
+                      className="w-full px-4 py-3 text-sm rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
                   {/* Nomor Induk */}
                   <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
-                      {formJenis === 'siswa' ? 'NISN Siswa (10 Digit)' : 'NIP / NUPTK Guru'}
+                    <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-2">
+                      {formJenis === 'siswa' ? 'NISN Siswa (10 Digit)' : 'NIP / NUPTK Guru'} <span className="text-orange-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -654,14 +721,14 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
                       value={formNisn}
                       onChange={(e) => setFormNisn(e.target.value)}
                       placeholder={formJenis === 'siswa' ? '10 digit NISN' : '18 digit NIP'}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white font-mono focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      className="w-full px-4 py-3 text-sm rounded-xl border border-emerald-500/30 bg-[#06291d] text-white font-mono focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
                   {/* Kelas / Jabatan */}
                   <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
-                      {formJenis === 'siswa' ? 'Kelas / Jurusan' : 'Jabatan / Mata Pelajaran'}
+                    <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-2">
+                      {formJenis === 'siswa' ? 'Kelas / Jurusan' : 'Jabatan / Mata Pelajaran'} <span className="text-orange-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -669,85 +736,96 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
                       value={formKelas}
                       onChange={(e) => setFormKelas(e.target.value)}
                       placeholder={formJenis === 'siswa' ? 'Contoh: XI TJKT 2' : 'Contoh: Guru Produktif DKV'}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      className="w-full px-4 py-3 text-sm rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                     />
                   </div>
 
+                  {/* Token Box */}
+                  <div className="p-4 bg-[#021810] rounded-2xl border border-emerald-500/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-emerald-300 uppercase tracking-wider">
+                        Token Autentikasi Pemilih (5 Digit Angka)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleRegenerateToken(false)}
+                        className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 cursor-pointer transition-colors"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Acak Ulang Token</span>
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="text"
+                        maxLength={5}
+                        required
+                        value={formToken}
+                        onChange={(e) => setFormToken(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                        className="w-48 px-4 py-2.5 rounded-xl bg-[#031d14] border border-orange-500/50 text-orange-400 text-xl font-mono font-bold tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-orange-500/60 shadow-inner"
+                      />
+                      <span className="text-xs text-emerald-300/70">
+                        Token unik yang digunakan pemilih untuk login di bilik suara publik.
+                      </span>
+                    </div>
+                  </div>
+
                   {formError && (
-                    <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                    <div className="p-3.5 rounded-xl bg-rose-950/70 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
                       <span>{formError}</span>
                     </div>
                   )}
                 </div>
 
-                {/* RIGHT COLUMN: STICKY SIDEBAR DOCK */}
-                <div className="md:col-span-5 bg-[#021810]/90 border border-emerald-500/25 rounded-2xl p-4 space-y-4 md:sticky md:top-2 shadow-lg">
-                  <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
-                    <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">
-                      Aksi & Token Suara
+                {/* RIGHT COLUMN: Fast Action Dock & Live Card Preview */}
+                <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-6">
+                  {/* Fast Action Dock Card */}
+                  <div className="p-5 rounded-2xl bg-[#021810] border border-emerald-500/30 shadow-xl space-y-3">
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">
+                      Aksi & Konfirmasi
                     </span>
-                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                      LIVE DOCK
-                    </span>
-                  </div>
-
-                  {/* Top Action Buttons (Always in Plain Sight) */}
-                  <div className="space-y-2">
                     <button
                       type="submit"
-                      className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40 transition-all hover:scale-[1.01]"
+                      className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 active:scale-[0.99] text-white font-bold text-xs tracking-wide shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer transition-all border border-orange-400/40"
                     >
                       <Save className="w-4 h-4" />
-                      <span>Simpan Pemilih</span>
+                      <span>Simpan Pemilih ke DPT</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setIsAddModalOpen(false)}
-                      className="w-full py-2 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setSubView('list');
+                        resetAddForm();
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-950/50 hover:text-white cursor-pointer transition-all text-center block"
                     >
-                      Batal
+                      Batal & Kembali
                     </button>
                   </div>
 
-                  {/* Token Box with Regenerate Button */}
-                  <div className="p-3.5 bg-black/40 rounded-xl border border-emerald-500/20 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider">
-                        Token 5 Digit Otomatis
+                  {/* Live Voter Card Preview */}
+                  <div className="p-5 rounded-2xl bg-[#021810] border border-emerald-500/30 space-y-3">
+                    <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">
+                      Pratinjau Kartu Pemilih
+                    </span>
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-[#042017] to-[#02130c] border border-emerald-500/30 space-y-2 text-center">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-950/80 border border-emerald-500/30 text-emerald-300">
+                        {formJenis === 'siswa' ? 'Siswa' : 'Guru / Staf'}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => handleRegenerateToken(false)}
-                        className="text-emerald-300 hover:text-orange-400 text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                      >
-                        <RefreshCw className="w-3 h-3" />
-                        <span>Acak Ulang</span>
-                      </button>
+                      <h4 className="text-sm font-bold text-white truncate">
+                        {formNama || 'Nama Lengkap Pemilih'}
+                      </h4>
+                      <p className="text-xs text-emerald-300/80 truncate">
+                        {formNisn || 'NISN / NIP'} · {formKelas || 'Kelas / Jabatan'}
+                      </p>
+                      <div className="pt-2 border-t border-emerald-500/20">
+                        <span className="text-[10px] text-emerald-400/70 block uppercase">Token Akses:</span>
+                        <span className="text-lg font-mono font-bold text-orange-400 tracking-widest">
+                          {formToken || '•••••'}
+                        </span>
+                      </div>
                     </div>
-                    <input
-                      type="text"
-                      maxLength={5}
-                      value={formToken}
-                      onChange={(e) => setFormToken(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                      className="w-full px-3 py-2 font-mono font-bold text-center text-xl rounded-xl border border-orange-500/40 bg-[#062c20] tracking-widest text-orange-400 shadow-inner focus:outline-none focus:ring-1 focus:ring-orange-500"
-                    />
-                    <span className="text-[10px] text-emerald-300/60 block text-center">
-                      Digunakan pemilih untuk login di bilik suara publik.
-                    </span>
-                  </div>
-
-                  {/* Miniature Card Preview */}
-                  <div className="p-3 bg-[#06291d]/60 rounded-xl border border-emerald-500/20 text-xs space-y-1 text-center">
-                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
-                      Pratinjau Akun Pemilih
-                    </span>
-                    <p className="font-bold text-white truncate">
-                      {formNama || 'Nama Lengkap'}
-                    </p>
-                    <p className="text-[11px] text-emerald-300/80 truncate">
-                      {formNisn || 'NISN'} · {formKelas || 'Kelas'}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -756,177 +834,214 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         </div>
       )}
 
-      {/* 2. Modal Edit Pemilih - GAYA MENYAMPING (Side-by-Side Action Dock) */}
-      {editingVoter && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-          <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-2xl border border-emerald-500/30 text-white my-6 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3.5 border-b border-emerald-500/20 mb-5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-900/80 text-orange-400 flex items-center justify-center border border-orange-500/30 shadow-md">
-                  <Edit3 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">
-                    Ubah Data Pemilih
-                  </h3>
-                  <span className="text-[11px] text-emerald-300/80">
-                    Form input menyamping dengan tombol aksi selalu siap di panel samping
-                  </span>
-                </div>
+      {/* ========================================================================= */}
+      {/* 2. FULL PAGE: UBAH DATA PEMILIH                                            */}
+      {/* ========================================================================= */}
+      {subView === 'edit' && editingVoter && (
+        <div className="space-y-6 animate-in fade-in duration-150">
+          {/* Top Navigation Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[#042017]/90 backdrop-blur-xl rounded-2xl border border-emerald-500/25 shadow-lg">
+            <button
+              type="button"
+              onClick={() => {
+                setEditingVoter(null);
+                setSubView('list');
+              }}
+              className="flex items-center gap-2 text-xs font-bold text-emerald-300 hover:text-orange-400 transition-colors cursor-pointer group"
+            >
+              <div className="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center group-hover:border-orange-500/50">
+                <ArrowLeft className="w-4 h-4 text-emerald-400 group-hover:text-orange-400" />
               </div>
-              <button
-                onClick={() => setEditingVoter(null)}
-                className="text-emerald-400 hover:text-white p-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/20 hover:border-orange-500/40 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <span>Kembali ke Daftar Pemilih (DPT)</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
+              <span className="text-[11px] font-mono text-emerald-300/80 uppercase tracking-wider">
+                Halaman Penuh · Ubah Data: {editingVoter.nama}
+              </span>
+            </div>
+          </div>
+
+          {/* Form Container */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-[#042017]/85 backdrop-blur-2xl border border-emerald-500/25 shadow-2xl text-white">
+            <div className="flex items-center gap-3 pb-5 border-b border-emerald-500/20 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-emerald-900/80 text-orange-400 flex items-center justify-center border border-orange-500/30 shadow-lg">
+                <Edit3 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white tracking-wide">
+                  Perbarui Data Pemilih Tetap
+                </h3>
+                <p className="text-xs text-emerald-300/80">
+                  Ubah data pemilih dan simpan perubahan menggunakan panel di sebelah kanan
+                </p>
+              </div>
             </div>
 
             <form onSubmit={handleSaveEdit}>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 {/* LEFT COLUMN: Input Fields */}
-                <div className="md:col-span-7 space-y-4">
-                  {/* Jenis Pemilih */}
+                <div className="lg:col-span-8 space-y-5">
+                  {/* Kategori Pemilih */}
                   <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1.5">
+                    <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-2">
                       Kategori Pemilih
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
                         onClick={() => setEditingVoter({ ...editingVoter, jenis: 'siswa' })}
-                        className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all cursor-pointer ${
+                        className={`py-3 px-4 rounded-2xl border font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
                           editingVoter.jenis === 'siswa'
-                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-sm'
+                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-md ring-1 ring-orange-500/30'
                             : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white'
                         }`}
                       >
-                        Siswa
+                        <span className={`w-2 h-2 rounded-full ${editingVoter.jenis === 'siswa' ? 'bg-orange-400' : 'bg-emerald-700'}`} />
+                        <span>Siswa / Pelajar</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => setEditingVoter({ ...editingVoter, jenis: 'guru' })}
-                        className={`py-2 px-3 rounded-xl border font-bold text-xs transition-all cursor-pointer ${
+                        className={`py-3 px-4 rounded-2xl border font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-2 ${
                           editingVoter.jenis === 'guru'
-                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-sm'
+                            ? 'bg-gradient-to-r from-emerald-900 to-emerald-800 text-orange-400 border-orange-500/40 shadow-md ring-1 ring-orange-500/30'
                             : 'bg-[#021810] text-emerald-300/60 border-emerald-500/20 hover:text-white'
                         }`}
                       >
-                        Guru / Staf
+                        <span className={`w-2 h-2 rounded-full ${editingVoter.jenis === 'guru' ? 'bg-orange-400' : 'bg-emerald-700'}`} />
+                        <span>Guru & Tenaga Kependidikan</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* Nama */}
+                  {/* Nama Lengkap */}
                   <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
-                      Nama Lengkap
+                    <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-2">
+                      Nama Lengkap Pemilih <span className="text-orange-400">*</span>
                     </label>
                     <input
                       type="text"
                       required
                       value={editingVoter.nama}
                       onChange={(e) => setEditingVoter({ ...editingVoter, nama: e.target.value })}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      className="w-full px-4 py-3 rounded-xl bg-[#06291d] border border-emerald-500/30 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
                     />
                   </div>
 
-                  {/* Nomor Induk */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
-                      {editingVoter.jenis === 'guru' ? 'NIP / NUPTK Guru' : 'NISN Siswa'}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={editingVoter.nisn}
-                      onChange={(e) => setEditingVoter({ ...editingVoter, nisn: e.target.value })}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white font-mono focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                    />
+                  {/* Nomor Induk & Kelas */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-2">
+                        {editingVoter.jenis === 'siswa' ? 'NISN (Nomor Induk Siswa)' : 'NIP / NUPTK Guru'} <span className="text-orange-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editingVoter.nisn}
+                        onChange={(e) => setEditingVoter({ ...editingVoter, nisn: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-[#06291d] border border-emerald-500/30 text-white font-mono text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-2">
+                        {editingVoter.jenis === 'siswa' ? 'Kelas & Rombel' : 'Jabatan / Posisi'} <span className="text-orange-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editingVoter.kelas}
+                        onChange={(e) => setEditingVoter({ ...editingVoter, kelas: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl bg-[#06291d] border border-emerald-500/30 text-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all"
+                      />
+                    </div>
                   </div>
 
-                  {/* Kelas / Jabatan */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
-                      {editingVoter.jenis === 'guru' ? 'Jabatan / Mapel' : 'Kelas / Jurusan'}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={editingVoter.kelas}
-                      onChange={(e) => setEditingVoter({ ...editingVoter, kelas: e.target.value })}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                    />
+                  {/* Token Box */}
+                  <div className="p-4 bg-[#021810] rounded-2xl border border-emerald-500/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-emerald-300 uppercase tracking-wider">
+                        Token Autentikasi Pemilih (5 Digit Angka)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => handleRegenerateToken(true)}
+                        className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 cursor-pointer transition-colors"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Acak Ulang Token</span>
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="text"
+                        maxLength={5}
+                        required
+                        value={editingVoter.token}
+                        onChange={(e) =>
+                          setEditingVoter({
+                            ...editingVoter,
+                            token: e.target.value.replace(/\D/g, '').slice(0, 5),
+                          })
+                        }
+                        className="w-48 px-4 py-2.5 rounded-xl bg-[#031d14] border border-orange-500/50 text-orange-400 text-xl font-mono font-bold tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-orange-500/60 shadow-inner"
+                      />
+                      <span className="text-xs text-emerald-300/70">
+                        Status partisipasi saat ini:{' '}
+                        <span
+                          className={`font-bold ${
+                            editingVoter.status === 'sudah' ? 'text-emerald-400' : 'text-amber-400'
+                          }`}
+                        >
+                          {editingVoter.status === 'sudah' ? 'Sudah Memilih' : 'Belum Memilih'}
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* RIGHT COLUMN: STICKY SIDEBAR DOCK */}
-                <div className="md:col-span-5 bg-[#021810]/90 border border-emerald-500/25 rounded-2xl p-4 space-y-4 md:sticky md:top-2 shadow-lg">
-                  <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
-                    <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">
-                      Aksi & Token
+                {/* RIGHT COLUMN: Fast Action Dock */}
+                <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-6">
+                  <div className="p-5 rounded-2xl bg-[#021810] border border-emerald-500/30 shadow-xl space-y-3">
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">
+                      Aksi & Konfirmasi
                     </span>
-                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                      EDIT DOCK
-                    </span>
-                  </div>
-
-                  {/* Top Action Buttons (Always Accessible Beside) */}
-                  <div className="space-y-2">
                     <button
                       type="submit"
-                      className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40 transition-all hover:scale-[1.01]"
+                      className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 active:scale-[0.99] text-white font-bold text-xs tracking-wide shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer transition-all border border-orange-400/40"
                     >
                       <Save className="w-4 h-4" />
                       <span>Simpan Perubahan</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setEditingVoter(null)}
-                      className="w-full py-2 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setEditingVoter(null);
+                        setSubView('list');
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-950/50 hover:text-white cursor-pointer transition-all text-center block"
                     >
-                      Batal
+                      Batal & Kembali
                     </button>
                   </div>
 
-                  {/* Token Box */}
-                  <div className="p-3.5 bg-black/40 rounded-xl border border-emerald-500/20 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider">
-                        Token 5 Digit
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleRegenerateToken(true)}
-                        className="text-emerald-300 hover:text-orange-400 text-xs font-semibold flex items-center gap-1 cursor-pointer"
-                      >
-                        <RefreshCw className="w-3 h-3" />
-                        <span>Generate Baru</span>
-                      </button>
-                    </div>
-                    <input
-                      type="text"
-                      maxLength={5}
-                      value={editingVoter.token}
-                      onChange={(e) =>
-                        setEditingVoter({
-                          ...editingVoter,
-                          token: e.target.value.replace(/\D/g, '').slice(0, 5),
-                        })
-                      }
-                      className="w-full px-3 py-2 font-mono font-bold text-center text-xl rounded-xl border border-orange-500/40 bg-[#062c20] tracking-widest text-orange-400 shadow-inner focus:outline-none focus:ring-1 focus:ring-orange-500"
-                    />
-                  </div>
-
-                  {/* Mini Card Preview */}
-                  <div className="p-3 bg-[#06291d]/60 rounded-xl border border-emerald-500/20 text-xs space-y-1 text-center">
-                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
-                      Pratinjau Pemilih
+                  {/* Summary Card */}
+                  <div className="p-5 rounded-2xl bg-[#021810] border border-emerald-500/30 space-y-3">
+                    <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">
+                      Ringkasan Data Pemilih
                     </span>
-                    <p className="font-bold text-white truncate">{editingVoter.nama}</p>
-                    <p className="text-[11px] text-emerald-300/80 truncate">
-                      {editingVoter.nisn} · {editingVoter.kelas}
-                    </p>
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-[#042017] to-[#02130c] border border-emerald-500/30 space-y-1.5 text-center">
+                      <p className="text-sm font-bold text-white truncate">{editingVoter.nama}</p>
+                      <p className="text-xs text-emerald-300/80 truncate">
+                        {editingVoter.nisn} · {editingVoter.kelas}
+                      </p>
+                      <div className="pt-2 border-t border-emerald-500/20">
+                        <span className="text-[10px] text-emerald-400/70 block uppercase">Token Akses:</span>
+                        <span className="text-lg font-mono font-bold text-orange-400 tracking-widest">
+                          {editingVoter.token}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -935,167 +1050,189 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         </div>
       )}
 
-      {/* 3. Modal Konfirmasi Hapus (Dark Glassmorphism) */}
-      {deletingVoter && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#031d14] rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-rose-500/40 text-center animate-in fade-in duration-150 text-white">
-            <div className="w-12 h-12 rounded-2xl bg-rose-950/80 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto mb-3 shadow-md">
-              <Trash2 className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-white mb-1">
-              Hapus Data Pemilih?
-            </h3>
-            <p className="text-xs text-emerald-200/80 mb-5 leading-relaxed">
-              Anda akan menghapus pemilih <strong className="text-orange-400">{deletingVoter.nama}</strong> ({deletingVoter.kelas}) dengan token <span className="font-mono font-bold text-white">{deletingVoter.token}</span>.
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => setDeletingVoter(null)}
-                className="py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 cursor-pointer"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmDelete}
-                className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs shadow-md cursor-pointer border border-rose-400/30"
-              >
-                Ya, Hapus
-              </button>
+      {/* ========================================================================= */}
+      {/* 3. FULL PAGE: IMPORT DATA DARI EXCEL (.XLSX)                               */}
+      {/* ========================================================================= */}
+      {subView === 'import' && (
+        <div className="space-y-6 animate-in fade-in duration-150">
+          {/* Top Navigation Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[#042017]/90 backdrop-blur-xl rounded-2xl border border-emerald-500/25 shadow-lg">
+            <button
+              type="button"
+              onClick={() => {
+                setSubView('list');
+                setImportPreview(null);
+                setImportError(null);
+              }}
+              className="flex items-center gap-2 text-xs font-bold text-emerald-300 hover:text-orange-400 transition-colors cursor-pointer group"
+            >
+              <div className="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center group-hover:border-orange-500/50">
+                <ArrowLeft className="w-4 h-4 text-emerald-400 group-hover:text-orange-400" />
+              </div>
+              <span>Kembali ke Daftar Pemilih (DPT)</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
+              <span className="text-[11px] font-mono text-emerald-300/80 uppercase tracking-wider">
+                Halaman Penuh · Impor Excel DPT
+              </span>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* 4. Modal Import XLSX (Dark Glassmorphism) */}
-      {isImportModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-emerald-500/30 text-white animate-in fade-in duration-150">
-            <div className="flex items-center justify-between pb-3.5 border-b border-emerald-500/20 mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-900/80 text-orange-400 flex items-center justify-center border border-orange-500/30 shadow-md">
-                  <FileSpreadsheet className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">
-                    Import Pemilih dari Berkas Excel (.xlsx)
-                  </h3>
-                  <span className="text-[11px] text-emerald-300/80">
-                    Otomatis generate token 5 digit untuk setiap pemilih
-                  </span>
-                </div>
+          {/* Import Main Container */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-[#042017]/85 backdrop-blur-2xl border border-emerald-500/25 shadow-2xl text-white">
+            <div className="flex items-center gap-3 pb-5 border-b border-emerald-500/20 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-emerald-900/80 text-orange-400 flex items-center justify-center border border-orange-500/30 shadow-lg">
+                <FileSpreadsheet className="w-5 h-5" />
               </div>
-              <button
-                onClick={() => setIsImportModalOpen(false)}
-                className="text-emerald-400 hover:text-white p-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/20 hover:border-orange-500/40 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div>
+                <h3 className="text-lg font-bold text-white tracking-wide">
+                  Impor Data Pemilih Tetap dari Berkas Excel (.xlsx)
+                </h3>
+                <p className="text-xs text-emerald-300/80">
+                  Unggah berkas spreadsheet siswa atau guru. Sistem otomatis membuat token unik 5 digit untuk setiap pemilih.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-4">
-              {/* Template notice */}
-              <div className="p-3.5 bg-emerald-950/70 rounded-2xl border border-emerald-500/30 text-xs text-emerald-200 flex items-center justify-between">
-                <span>Belum memiliki format berkas yang sesuai?</span>
-                <button
-                  type="button"
-                  onClick={downloadVoterTemplate}
-                  className="font-bold underline text-orange-400 hover:text-orange-300 shrink-0 ml-2 cursor-pointer flex items-center gap-1"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Unduh Template</span>
-                </button>
-              </div>
-
-              {/* Upload Drop Area */}
-              <div className="border-2 border-dashed border-emerald-500/30 rounded-2xl p-6 text-center hover:border-orange-500/50 transition-colors bg-[#021810]">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".xlsx, .xls"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  id="excelFileInput"
-                />
-                <label
-                  htmlFor="excelFileInput"
-                  className="cursor-pointer flex flex-col items-center justify-center"
-                >
-                  <UploadCloud className="w-10 h-10 text-orange-400 mb-2" />
-                  <span className="text-xs font-bold text-white">
-                    Pilih Berkas Excel (.xlsx)
-                  </span>
-                  <span className="text-[11px] text-emerald-400/60 mt-0.5">
-                    Klik untuk memilih berkas dari komputer Anda
-                  </span>
-                </label>
-              </div>
-
-              {importLoading && (
-                <div className="py-4 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-emerald-800 border-t-transparent rounded-full animate-spin"></div>
-                  <span>Membaca data lembar kerja Excel...</span>
-                </div>
-              )}
-
-              {importError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                  <span>{importError}</span>
-                </div>
-              )}
-
-              {/* Import Preview */}
-              {importPreview && importPreview.length > 0 && (
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-900">
-                      Pratinjau Data Ditemukan:
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold text-[11px]">
-                      {importPreview.length} Data Pemilih Siap
-                    </span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* LEFT COLUMN: Upload & Preview */}
+              <div className="lg:col-span-8 space-y-5">
+                {/* Download Template Banner */}
+                <div className="p-4 bg-emerald-950/70 rounded-2xl border border-emerald-500/30 text-xs text-emerald-200 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <FileText className="w-5 h-5 text-orange-400 shrink-0" />
+                    <span>Belum memiliki format berkas yang sesuai?</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={downloadVoterTemplate}
+                    className="px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Unduh Template Excel</span>
+                  </button>
+                </div>
 
-                  <div className="max-h-36 overflow-y-auto divide-y divide-slate-200 text-xs">
-                    {importPreview.slice(0, 4).map((p, idx) => (
-                      <div key={idx} className="py-1.5 flex items-center justify-between">
-                        <div className="truncate pr-2">
-                          <span className="font-bold text-slate-900">{p.nama}</span>
-                          <span className="text-slate-500 text-[11px] ml-1">({p.kelas})</span>
+                {/* Dropzone File Upload */}
+                <div className="border-2 border-dashed border-emerald-500/40 rounded-3xl p-8 text-center hover:border-orange-500/60 transition-colors bg-[#021810]">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".xlsx, .xls"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="excelFileInputFullPage"
+                  />
+                  <label
+                    htmlFor="excelFileInputFullPage"
+                    className="cursor-pointer flex flex-col items-center justify-center"
+                  >
+                    <div className="w-16 h-16 rounded-2xl bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center mb-3 text-orange-400 group-hover:scale-105 transition-transform shadow-lg">
+                      <UploadCloud className="w-8 h-8" />
+                    </div>
+                    <span className="text-sm font-bold text-white mb-1">
+                      Klik untuk Memilih Berkas Excel (.xlsx / .xls)
+                    </span>
+                    <span className="text-xs text-emerald-400/70">
+                      Format kolom: No, Nama Lengkap, NISN/NIP, Kelas/Jurusan, Jenis (siswa/guru)
+                    </span>
+                  </label>
+                </div>
+
+                {/* Loading state */}
+                {importLoading && (
+                  <div className="py-6 text-center text-xs text-emerald-300 flex items-center justify-center gap-2.5 bg-[#021810] rounded-2xl border border-emerald-500/20">
+                    <div className="w-5 h-5 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
+                    <span>Menganalisis lembar kerja dan memverifikasi token 5 digit...</span>
+                  </div>
+                )}
+
+                {/* Error state */}
+                {importError && (
+                  <div className="p-4 rounded-2xl bg-rose-950/70 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-2.5">
+                    <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                    <span>{importError}</span>
+                  </div>
+                )}
+
+                {/* Preview Table */}
+                {importPreview && importPreview.length > 0 && (
+                  <div className="p-5 rounded-2xl bg-[#021810] border border-emerald-500/30 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white tracking-wide">
+                        Pratinjau Data yang Siap Diimpor:
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-300 font-bold text-xs">
+                        {importPreview.length} Calon Pemilih
+                      </span>
+                    </div>
+
+                    <div className="max-h-64 overflow-y-auto rounded-xl border border-emerald-500/20 divide-y divide-emerald-500/10">
+                      {importPreview.map((p, idx) => (
+                        <div key={idx} className="p-3 bg-[#031d14]/60 flex items-center justify-between hover:bg-emerald-950/40 transition-colors text-xs">
+                          <div className="truncate pr-3">
+                            <span className="font-bold text-white">{p.nama}</span>
+                            <span className="text-emerald-400/80 text-[11px] ml-1.5">
+                              ({p.kelas} · {p.jenis === 'siswa' ? 'Siswa' : 'Guru'})
+                            </span>
+                          </div>
+                          <span className="font-mono font-bold text-orange-400 bg-[#02130c] px-2.5 py-1 rounded-lg border border-orange-500/30 text-xs shrink-0">
+                            {p.token}
+                          </span>
                         </div>
-                        <span className="font-mono font-bold text-emerald-900 bg-white px-1.5 py-0.5 rounded border border-slate-200 text-[10px] shrink-0">
-                          {p.token}
-                        </span>
-                      </div>
-                    ))}
-                    {importPreview.length > 4 && (
-                      <div className="text-[11px] text-slate-400 py-1 text-center">
-                        + {importPreview.length - 4} pemilih lainnya
-                      </div>
-                    )}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsImportModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  disabled={!importPreview || importPreview.length === 0}
-                  onClick={handleConfirmImport}
-                  className="px-5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <FileSpreadsheet className="w-3.5 h-3.5" />
-                  <span>Tambahkan {importPreview ? importPreview.length : 0} Pemilih ke DPT</span>
-                </button>
+              {/* RIGHT COLUMN: Action Dock */}
+              <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-6">
+                <div className="p-5 rounded-2xl bg-[#021810] border border-emerald-500/30 shadow-xl space-y-3">
+                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">
+                    Konfirmasi Impor
+                  </span>
+                  <button
+                    type="button"
+                    disabled={!importPreview || importPreview.length === 0}
+                    onClick={handleConfirmImport}
+                    className={`w-full py-3.5 px-4 rounded-xl font-bold text-xs tracking-wide shadow-lg flex items-center justify-center gap-2 transition-all ${
+                      importPreview && importPreview.length > 0
+                        ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white cursor-pointer border border-orange-400/40'
+                        : 'bg-emerald-950/50 text-emerald-600 cursor-not-allowed border border-emerald-500/10'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>
+                      {importPreview && importPreview.length > 0
+                        ? `Impor ${importPreview.length} Data Pemilih`
+                        : 'Pilih Berkas Terlebih Dahulu'}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubView('list');
+                      setImportPreview(null);
+                      setImportError(null);
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-950/50 hover:text-white cursor-pointer transition-all text-center block"
+                  >
+                    Batal & Kembali
+                  </button>
+                </div>
+
+                {/* Helpful instructions card */}
+                <div className="p-5 rounded-2xl bg-[#021810] border border-emerald-500/30 text-xs space-y-2 text-emerald-200/80">
+                  <div className="flex items-center gap-1.5 font-bold text-white mb-1">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span>Integritas Data Terjamin</span>
+                  </div>
+                  <p className="leading-relaxed text-[11px]">
+                    Sistem mendeteksi dan mencegah token ganda (duplikasi token) antar pemilih untuk menjaga kerahasiaan bilik suara.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

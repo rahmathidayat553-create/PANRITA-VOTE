@@ -15,6 +15,7 @@ import {
   Camera,
   Lock,
   Sparkles,
+  ArrowLeft,
 } from 'lucide-react';
 
 /**
@@ -73,8 +74,8 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
 }) => {
   const isLocked = isElectionActive || statusPemilihan === 'aktif';
 
-  // Modal states
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  // Subview states: 'list' | 'add' | 'edit'
+  const [subView, setSubView] = useState<'list' | 'add' | 'edit'>('list');
   const [editingPaslon, setEditingPaslon] = useState<Paslon | null>(null);
   const [deletingPaslon, setDeletingPaslon] = useState<Paslon | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -124,7 +125,7 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
       return;
     }
     resetAddForm();
-    setIsAddModalOpen(true);
+    setSubView('add');
   };
 
   const handleAddMissionField = (isEdit = false) => {
@@ -230,7 +231,7 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
     };
 
     onAddPaslon(newPaslon);
-    setIsAddModalOpen(false);
+    setSubView('list');
     setSuccessMessage(`Paslon No. ${newPaslon.nomorUrut} berhasil ditambahkan.`);
     setTimeout(() => setSuccessMessage(null), 3000);
   };
@@ -254,6 +255,7 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
     onUpdatePaslon(editingPaslon);
     setSuccessMessage(`Data Paslon No. ${editingPaslon.nomorUrut} berhasil diperbarui.`);
     setEditingPaslon(null);
+    setSubView('list');
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
@@ -281,70 +283,111 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
 
   return (
     <div className="space-y-6 max-w-6xl">
-      {/* Top Header Card (Dark Emerald Glassmorphism) */}
-      <div className="p-6 rounded-3xl bg-[#042017]/80 backdrop-blur-xl border border-emerald-500/25 shadow-xl shadow-black/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-orange-500" />
-            <h2 className="text-lg font-bold text-white tracking-wide">
-              Manajemen Pasangan Calon (Kandidat)
-            </h2>
-          </div>
-          <p className="text-xs text-emerald-200/80 max-w-xl">
-            Kelola data kandidat Ketua & Wakil Ketua OSIS, foto resmi surat suara 4:3, visi, dan rincian program kerja.
-          </p>
-        </div>
+      {subView === 'list' && (
+        <div className="space-y-6">
+          {/* Top Header Card (Dark Emerald Glassmorphism) */}
+          <div className="p-6 rounded-3xl bg-[#042017]/80 backdrop-blur-xl border border-emerald-500/25 shadow-xl shadow-black/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-2 h-2 rounded-full bg-orange-500" />
+                <h2 className="text-lg font-bold text-white tracking-wide">
+                  Manajemen Pasangan Calon (Kandidat)
+                </h2>
+              </div>
+              <p className="text-xs text-emerald-200/80 max-w-xl">
+                Kelola data kandidat Ketua & Wakil Ketua OSIS, foto resmi surat suara 4:3, visi, dan rincian program kerja.
+              </p>
+            </div>
 
-        <div className="flex items-center gap-2.5">
-          {successMessage && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/80 text-emerald-300 text-xs font-semibold rounded-xl border border-emerald-500/40 animate-in fade-in">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>{successMessage}</span>
+            <div className="flex items-center gap-2.5">
+              {successMessage && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-950/80 text-emerald-300 text-xs font-semibold rounded-xl border border-emerald-500/40 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>{successMessage}</span>
+                </div>
+              )}
+
+              <button
+                onClick={handleOpenAdd}
+                disabled={isLocked}
+                title={isLocked ? 'Penambahan kandidat dikunci saat pemilihan berlangsung' : 'Tambah Paslon'}
+                className={`px-4 py-2.5 font-bold text-xs rounded-xl transition-all duration-200 shadow-lg flex items-center gap-2 ${
+                  isLocked
+                    ? 'bg-emerald-950/40 text-emerald-600 border border-emerald-900 cursor-not-allowed opacity-60'
+                    : 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white cursor-pointer shadow-orange-950/40 border border-orange-400/40 hover:-translate-y-0.5'
+                }`}
+              >
+                {isLocked ? <Lock className="w-4 h-4 text-orange-400" /> : <UserPlus className="w-4 h-4" />}
+                <span>{isLocked ? 'Terkunci (Pemilihan Aktif)' : '+ Tambah Paslon'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Lock Notice Banner when Election is Active */}
+          {isLocked && (
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/80 via-orange-950/70 to-emerald-950/80 border border-orange-500/40 backdrop-blur-md text-orange-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg shadow-black/40">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/40 shadow-xs">
+                  <Lock className="w-5 h-5 text-orange-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-xs uppercase tracking-wider text-orange-300">
+                      Data Paslon Dikunci (Pemilihan Sedang Aktif)
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-orange-500/30 text-orange-300 border border-orange-400/40">
+                      STATUS: AKTIF
+                    </span>
+                  </div>
+                  <p className="text-xs text-orange-200/90 mt-0.5">
+                    Penambahan, pengeditan, dan penghapusan kandidat dinonaktifkan demi integritas suara bilik suara. Untuk mengedit, ubah status pemilihan ke <strong>Tahap Persiapan</strong> atau <strong>Ditutup</strong> di menu Pengaturan.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
-          <button
-            onClick={handleOpenAdd}
-            disabled={isLocked}
-            title={isLocked ? 'Penambahan kandidat dikunci saat pemilihan berlangsung' : 'Tambah Paslon'}
-            className={`px-4 py-2.5 font-bold text-xs rounded-xl transition-all duration-200 shadow-lg flex items-center gap-2 ${
-              isLocked
-                ? 'bg-emerald-950/40 text-emerald-600 border border-emerald-900 cursor-not-allowed opacity-60'
-                : 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white cursor-pointer shadow-orange-950/40 border border-orange-400/40 hover:-translate-y-0.5'
-            }`}
-          >
-            {isLocked ? <Lock className="w-4 h-4 text-orange-400" /> : <UserPlus className="w-4 h-4" />}
-            <span>{isLocked ? 'Terkunci (Pemilihan Aktif)' : '+ Tambah Paslon'}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Lock Notice Banner when Election is Active */}
-      {isLocked && (
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/80 via-orange-950/70 to-emerald-950/80 border border-orange-500/40 backdrop-blur-md text-orange-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg shadow-black/40">
-          <div className="flex items-start sm:items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/40 shadow-xs">
-              <Lock className="w-5 h-5 text-orange-400" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-xs uppercase tracking-wider text-orange-300">
-                  Data Paslon Dikunci (Pemilihan Sedang Aktif)
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-orange-500/30 text-orange-300 border border-orange-400/40">
-                  STATUS: AKTIF
-                </span>
+          {/* INLINE CONFIRMATION BANNER FOR DELETION (NO FLOATING MODAL) */}
+          {deletingPaslon && (
+            <div className="p-5 rounded-3xl bg-rose-950/80 border-2 border-rose-500/60 shadow-2xl text-white animate-in fade-in duration-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-rose-900/90 text-rose-300 border border-rose-400/40 flex items-center justify-center shrink-0 shadow-md">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>Hapus Paslon No. {deletingPaslon.nomorUrut}?</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/30 text-rose-200 border border-rose-400/30 uppercase">
+                      KONFIRMASI_HAPUS
+                    </span>
+                  </h4>
+                  <p className="text-xs text-rose-200/90 mt-0.5">
+                    Anda akan menghapus data <strong className="text-white font-bold">{deletingPaslon.namaKetua} & {deletingPaslon.namaWakil}</strong>. Data perolehan suara paslon ini juga akan terhapus.
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-orange-200/90 mt-0.5">
-                Penambahan, pengeditan, dan penghapusan kandidat dinonaktifkan demi integritas suara bilik suara. Untuk mengedit, ubah status pemilihan ke <strong>Tahap Persiapan</strong> atau <strong>Ditutup</strong> di menu Pengaturan.
-              </p>
+              <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setDeletingPaslon(null)}
+                  className="flex-1 sm:flex-none py-2.5 px-4 rounded-xl border border-rose-400/30 text-xs font-semibold text-rose-200 hover:bg-rose-900/50 cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDelete}
+                  className="flex-1 sm:flex-none py-2.5 px-5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs shadow-md cursor-pointer border border-rose-400/40 flex items-center justify-center gap-2"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Ya, Hapus Paslon</span>
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Grid of Paslon Cards (3D Hover Depth Glassmorphism) */}
-      {paslonList.length === 0 ? (
+          {/* Grid of Paslon Cards (3D Hover Depth Glassmorphism) */}
+          {paslonList.length === 0 ? (
         <div className="p-10 text-center bg-[#042017]/70 backdrop-blur-md rounded-3xl border border-dashed border-emerald-500/30 space-y-3 shadow-xl">
           <div className="w-12 h-12 rounded-2xl bg-emerald-900/50 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/30">
             <Users2 className="w-6 h-6 text-emerald-400" />
@@ -407,6 +450,7 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
                           return;
                         }
                         setEditingPaslon({ ...paslon, misi: [...paslon.misi] });
+                        setSubView('edit');
                       }}
                       className={`p-2 rounded-xl text-xs font-medium transition-all ${
                         isLocked
@@ -505,498 +549,513 @@ export const AdminPaslon: React.FC<AdminPaslonProps> = ({
           ))}
         </div>
       )}
-
-      {/* 1. Modal Tambah Paslon Baru - GAYA MENYAMPING (Side-by-Side Action Dock) */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-          <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl max-w-5xl w-full p-5 sm:p-7 shadow-2xl border border-emerald-500/30 text-white my-6 animate-in fade-in duration-200">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3.5 border-b border-emerald-500/20 mb-5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-white flex items-center justify-center shadow-md shadow-orange-950/40">
-                  <UserPlus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">
-                    Tambah Pasangan Calon Baru
-                  </h3>
-                  <span className="text-[11px] text-emerald-300/80">
-                    Form input menyamping dengan tombol aksi selalu siap di panel samping
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="text-emerald-400 hover:text-white p-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/20 hover:border-orange-500/40 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveAdd}>
-              {/* TWO-COLUMN SIDE-BY-SIDE LAYOUT */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                {/* LEFT COLUMN: Input Fields (Scrollable) */}
-                <div className="md:col-span-7 space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-                  {/* Nomor Urut & URL Foto */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-1">
-                        Nomor Urut
-                      </label>
-                      <input
-                        type="number"
-                        min={1}
-                        required
-                        value={formNomor}
-                        onChange={(e) => setFormNomor(parseInt(e.target.value) || 1)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] font-mono font-bold text-center text-sm text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
-                        Link URL Foto Paslon (Berdua / HTTPS)
-                      </label>
-                      <input
-                        type="url"
-                        required
-                        value={formFotoUrl}
-                        onChange={(e) => setFormFotoUrl(e.target.value)}
-                        placeholder="https://..."
-                        className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Identitas Calon Ketua & Wakil */}
-                  <div className="p-4 rounded-2xl bg-[#06291d]/80 border border-emerald-500/20 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <div>
-                      <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block mb-2">
-                        Calon Ketua
-                      </span>
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          required
-                          placeholder="Nama Lengkap Ketua"
-                          value={formNamaKetua}
-                          onChange={(e) => setFormNamaKetua(e.target.value)}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          required
-                          placeholder="Kelas (cth: XI TJKT)"
-                          value={formKelasKetua}
-                          onChange={(e) => setFormKelasKetua(e.target.value)}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block mb-2">
-                        Calon Wakil Ketua
-                      </span>
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          required
-                          placeholder="Nama Lengkap Wakil"
-                          value={formNamaWakil}
-                          onChange={(e) => setFormNamaWakil(e.target.value)}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          required
-                          placeholder="Kelas (cth: X AKL)"
-                          value={formKelasWakil}
-                          onChange={(e) => setFormKelasWakil(e.target.value)}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Visi */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
-                      Visi Pasangan Calon
-                    </label>
-                    <textarea
-                      rows={2}
-                      required
-                      value={formVisi}
-                      onChange={(e) => setFormVisi(e.target.value)}
-                      placeholder="Ketik visi program kerja paslon..."
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                    />
-                  </div>
-
-                  {/* Misi */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider">
-                        Poin-Poin Misi
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => handleAddMissionField(false)}
-                        className="text-xs font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1 cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Tambah Butir Misi</span>
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {formMisi.map((m, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={m}
-                            onChange={(e) => handleMissionChange(idx, e.target.value, false)}
-                            className="flex-1 px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                            placeholder={`Misi ${idx + 1}`}
-                          />
-                          {formMisi.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveMissionField(idx, false)}
-                              className="p-2 text-rose-400 hover:text-rose-300 rounded-lg cursor-pointer bg-rose-950/40 border border-rose-500/20"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {formError && (
-                    <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-                      <span>{formError}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* RIGHT COLUMN: STICKY SIDEBAR ACTION DOCK */}
-                <div className="md:col-span-5 bg-[#021810]/90 border border-emerald-500/25 rounded-2xl p-4 space-y-4 md:sticky md:top-2 shadow-lg">
-                  <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
-                    <span className="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Panel Aksi Cepat</span>
-                    </span>
-                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                      PASLON #{formNomor}
-                    </span>
-                  </div>
-
-                  {/* Primary Save & Cancel Buttons Directly Accessible on Side */}
-                  <div className="space-y-2">
-                    <button
-                      type="submit"
-                      className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40 transition-all hover:scale-[1.01]"
-                    >
-                      <Save className="w-4 h-4" />
-                      <span>Simpan Paslon Baru</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsAddModalOpen(false)}
-                      className="w-full py-2 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 hover:text-white transition-colors cursor-pointer"
-                    >
-                      Batal
-                    </button>
-                  </div>
-
-                  {/* Live Card Preview Box */}
-                  <div className="p-3 bg-black/40 rounded-xl border border-emerald-500/20 space-y-2">
-                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
-                      Pratinjau Tampilan Surat Suara
-                    </span>
-                    <div className="w-full aspect-4/3 rounded-xl overflow-hidden border border-emerald-500/30 bg-[#06291d]">
-                      <SafeImage
-                        src={formFotoUrl}
-                        alt="Pratinjau Foto Paslon"
-                        fallbackInitial={`P${formNomor}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="text-center">
-                      <span className="text-xs font-bold text-white block truncate">
-                        {formNamaKetua || 'Nama Calon Ketua'}
-                      </span>
-                      <span className="text-[11px] font-semibold text-orange-300 block truncate">
-                        & {formNamaWakil || 'Nama Calon Wakil'}
-                      </span>
-                      <span className="text-[10px] text-emerald-300/70 block truncate mt-0.5">
-                        {formKelasKetua || 'Kelas Ketua'} · {formKelasWakil || 'Kelas Wakil'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <PhotoGuidanceBox />
-                </div>
-              </div>
-            </form>
-          </div>
         </div>
       )}
 
-      {/* 2. Modal Edit Paslon - GAYA MENYAMPING (Side-by-Side Action Dock) */}
-      {editingPaslon && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-          <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl max-w-5xl w-full p-5 sm:p-7 shadow-2xl border border-emerald-500/30 text-white my-6 animate-in fade-in duration-200">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3.5 border-b border-emerald-500/20 mb-5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-900/80 text-orange-400 flex items-center justify-center border border-orange-500/30 shadow-md">
-                  <Edit3 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">
-                    Ubah Data Paslon No. {editingPaslon.nomorUrut}
+      {/* 1. SUBVIEW TAMBAH PASLON BARU - HALAMAN PENUH */}
+      {subView === 'add' && (
+        <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl w-full p-5 sm:p-8 shadow-2xl border border-emerald-500/30 text-white animate-in fade-in duration-200">
+          {/* Header Subview & Tombol Kembali */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-500/20 mb-6">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setSubView('list');
+                  resetAddForm();
+                }}
+                className="p-2.5 rounded-xl bg-[#021810] border border-emerald-500/30 text-emerald-300 hover:text-white hover:border-orange-500/50 transition-colors flex items-center gap-2 text-xs font-semibold cursor-pointer shadow-md"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Kembali ke Daftar Paslon</span>
+              </button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-white">
+                    Tambah Pasangan Calon Baru
                   </h3>
-                  <span className="text-[11px] text-emerald-300/80">
-                    Form input menyamping dengan tombol aksi selalu siap di panel samping
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                    HALAMAN FORM PENUH
                   </span>
                 </div>
+                <span className="text-xs text-emerald-300/80">
+                  Lengkapi data nomor urut, foto resmi surat suara, calon ketua & wakil, serta visi misi
+                </span>
               </div>
-              <button
-                onClick={() => setEditingPaslon(null)}
-                className="text-emerald-400 hover:text-white p-1.5 rounded-lg bg-emerald-950/60 border border-emerald-500/20 hover:border-orange-500/40 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
 
-            <form onSubmit={handleSaveEdit}>
-              {/* TWO-COLUMN SIDE-BY-SIDE LAYOUT */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                {/* LEFT COLUMN: Input Fields (Scrollable) */}
-                <div className="md:col-span-7 space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-                  {/* Foto URL Paslon */}
-                  <div className="p-3.5 rounded-2xl bg-[#06291d]/80 border border-emerald-500/20 space-y-2">
-                    <label className="block text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-1">
+            <button
+              type="button"
+              onClick={() => {
+                setSubView('list');
+                resetAddForm();
+              }}
+              className="self-start sm:self-auto px-4 py-2 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 hover:text-white transition-colors cursor-pointer"
+            >
+              Batal & Kembali
+            </button>
+          </div>
+
+          <form onSubmit={handleSaveAdd}>
+            {/* TWO-COLUMN FULL-PAGE LAYOUT */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* LEFT COLUMN: Input Fields */}
+              <div className="lg:col-span-7 space-y-5">
+                {/* Nomor Urut & URL Foto */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <div>
+                    <label className="block text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-1.5">
+                      Nomor Urut
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      required
+                      value={formNomor}
+                      onChange={(e) => setFormNomor(parseInt(e.target.value) || 1)}
+                      className="w-full px-3 py-2.5 text-sm rounded-xl border border-emerald-500/30 bg-[#06291d] font-mono font-bold text-center text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none shadow-inner"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1.5">
                       Link URL Foto Paslon (Berdua / HTTPS)
                     </label>
                     <input
                       type="url"
-                      value={editingPaslon.fotoUrl}
-                      onChange={(e) =>
-                        setEditingPaslon({ ...editingPaslon, fotoUrl: e.target.value })
-                      }
-                      className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      required
+                      value={formFotoUrl}
+                      onChange={(e) => setFormFotoUrl(e.target.value)}
                       placeholder="https://..."
+                      className="w-full px-3 py-2.5 text-xs font-mono rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none shadow-inner"
                     />
-                  </div>
-
-                  {/* Ketua & Wakil */}
-                  <div className="p-4 rounded-2xl bg-[#06291d]/80 border border-emerald-500/20 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <div>
-                      <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block mb-2">
-                        Data Calon Ketua
-                      </span>
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          value={editingPaslon.namaKetua}
-                          onChange={(e) =>
-                            setEditingPaslon({ ...editingPaslon, namaKetua: e.target.value })
-                          }
-                          placeholder="Nama Ketua"
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          value={editingPaslon.kelasKetua}
-                          onChange={(e) =>
-                            setEditingPaslon({ ...editingPaslon, kelasKetua: e.target.value })
-                          }
-                          placeholder="Kelas Ketua"
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block mb-2">
-                        Data Calon Wakil Ketua
-                      </span>
-                      <div className="space-y-2">
-                        <input
-                          type="text"
-                          value={editingPaslon.namaWakil}
-                          onChange={(e) =>
-                            setEditingPaslon({ ...editingPaslon, namaWakil: e.target.value })
-                          }
-                          placeholder="Nama Wakil"
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                        />
-                        <input
-                          type="text"
-                          value={editingPaslon.kelasWakil}
-                          onChange={(e) =>
-                            setEditingPaslon({ ...editingPaslon, kelasWakil: e.target.value })
-                          }
-                          placeholder="Kelas Wakil"
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Visi */}
-                  <div>
-                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1">
-                      Visi Paslon
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={editingPaslon.visi}
-                      onChange={(e) =>
-                        setEditingPaslon({ ...editingPaslon, visi: e.target.value })
-                      }
-                      className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                    />
-                  </div>
-
-                  {/* Misi */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider">
-                        Poin-Poin Misi
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => handleAddMissionField(true)}
-                        className="text-xs font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1 cursor-pointer"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Tambah Butir Misi</span>
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {editingPaslon.misi.map((m, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={m}
-                            onChange={(e) => handleMissionChange(idx, e.target.value, true)}
-                            className="flex-1 px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
-                            placeholder={`Misi ${idx + 1}`}
-                          />
-                          {editingPaslon.misi.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveMissionField(idx, true)}
-                              className="p-2 text-rose-400 hover:text-rose-300 rounded-lg cursor-pointer bg-rose-950/40 border border-rose-500/20"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 </div>
 
-                {/* RIGHT COLUMN: STICKY SIDEBAR ACTION DOCK */}
-                <div className="md:col-span-5 bg-[#021810]/90 border border-emerald-500/25 rounded-2xl p-4 space-y-4 md:sticky md:top-2 shadow-lg">
-                  <div className="flex items-center justify-between pb-2 border-b border-emerald-500/20">
-                    <span className="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Panel Aksi Cepat</span>
+                {/* Identitas Calon Ketua & Wakil */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#06291d]/80 border border-emerald-500/25 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block mb-2">
+                      Calon Ketua OSIS
                     </span>
-                    <span className="text-[10px] font-mono text-orange-300 bg-orange-950/80 px-2 py-0.5 rounded-full border border-orange-500/40">
-                      PASLON #{editingPaslon.nomorUrut}
-                    </span>
-                  </div>
-
-                  {/* Primary Save & Cancel Buttons Directly Accessible on Side */}
-                  <div className="space-y-2">
-                    <button
-                      type="submit"
-                      className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40 transition-all hover:scale-[1.01]"
-                    >
-                      <Save className="w-4 h-4" />
-                      <span>Simpan Perubahan</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingPaslon(null)}
-                      className="w-full py-2 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 hover:text-white transition-colors cursor-pointer"
-                    >
-                      Batal
-                    </button>
-                  </div>
-
-                  {/* Live Card Preview Box */}
-                  <div className="p-3 bg-black/40 rounded-xl border border-emerald-500/20 space-y-2">
-                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
-                      Pratinjau Hasil Perubahan
-                    </span>
-                    <div className="w-full aspect-4/3 rounded-xl overflow-hidden border border-emerald-500/30 bg-[#06291d]">
-                      <SafeImage
-                        src={editingPaslon.fotoUrl}
-                        alt="Pratinjau Foto Paslon"
-                        fallbackInitial={`P${editingPaslon.nomorUrut}`}
-                        className="w-full h-full object-cover"
+                    <div className="space-y-2.5">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Nama Lengkap Ketua"
+                        value={formNamaKetua}
+                        onChange={(e) => setFormNamaKetua(e.target.value)}
+                        className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Kelas (cth: XI TJKT 1)"
+                        value={formKelasKetua}
+                        onChange={(e) => setFormKelasKetua(e.target.value)}
+                        className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                       />
                     </div>
-                    <div className="text-center">
-                      <span className="text-xs font-bold text-white block truncate">
-                        {editingPaslon.namaKetua} (Ketua)
-                      </span>
-                      <span className="text-[11px] font-semibold text-orange-300 block truncate">
-                        & {editingPaslon.namaWakil} (Wakil)
-                      </span>
-                      <span className="text-[10px] text-emerald-300/70 block truncate mt-0.5">
-                        {editingPaslon.kelasKetua} · {editingPaslon.kelasWakil}
-                      </span>
-                    </div>
                   </div>
 
-                  <PhotoGuidanceBox />
+                  <div>
+                    <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block mb-2">
+                      Calon Wakil Ketua OSIS
+                    </span>
+                    <div className="space-y-2.5">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Nama Lengkap Wakil"
+                        value={formNamaWakil}
+                        onChange={(e) => setFormNamaWakil(e.target.value)}
+                        className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Kelas (cth: X AKL 2)"
+                        value={formKelasWakil}
+                        onChange={(e) => setFormKelasWakil(e.target.value)}
+                        className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
+
+                {/* Visi */}
+                <div>
+                  <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1.5">
+                    Visi Pasangan Calon
+                  </label>
+                  <textarea
+                    rows={3}
+                    required
+                    value={formVisi}
+                    onChange={(e) => setFormVisi(e.target.value)}
+                    placeholder="Ketik visi program kerja paslon..."
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Misi */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider">
+                      Poin-Poin Misi Program Kerja
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => handleAddMissionField(false)}
+                      className="text-xs font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Tambah Butir Misi</span>
+                    </button>
+                  </div>
+                  <div className="space-y-2.5">
+                    {formMisi.map((m, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-emerald-950 text-emerald-400 font-mono text-[11px] font-bold flex items-center justify-center shrink-0 border border-emerald-500/30">
+                          {idx + 1}
+                        </span>
+                        <input
+                          type="text"
+                          value={m}
+                          onChange={(e) => handleMissionChange(idx, e.target.value, false)}
+                          className="flex-1 px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                          placeholder={`Misi ${idx + 1}`}
+                        />
+                        {formMisi.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMissionField(idx, false)}
+                            className="p-2 text-rose-400 hover:text-rose-300 rounded-lg cursor-pointer bg-rose-950/40 border border-rose-500/20"
+                            title="Hapus butir misi"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {formError && (
+                  <div className="p-3.5 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span>{formError}</span>
+                  </div>
+                )}
               </div>
-            </form>
-          </div>
+
+              {/* RIGHT COLUMN: STICKY SIDEBAR ACTION DOCK */}
+              <div className="lg:col-span-5 bg-[#021810]/95 border border-emerald-500/25 rounded-2xl p-5 space-y-5 lg:sticky lg:top-4 shadow-xl">
+                <div className="flex items-center justify-between pb-2.5 border-b border-emerald-500/20">
+                  <span className="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Panel Aksi Cepat</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                    PASLON #{formNomor}
+                  </span>
+                </div>
+
+                {/* Primary Save & Cancel Buttons Directly Accessible on Side */}
+                <div className="space-y-2.5">
+                  <button
+                    type="submit"
+                    className="w-full py-3.5 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40 transition-all hover:scale-[1.01]"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Simpan Paslon Baru</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubView('list');
+                      resetAddForm();
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 hover:text-white transition-colors cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                </div>
+
+                {/* Live Card Preview Box */}
+                <div className="p-3.5 bg-black/40 rounded-xl border border-emerald-500/20 space-y-2.5">
+                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
+                    Pratinjau Tampilan Surat Suara
+                  </span>
+                  <div className="w-full aspect-4/3 rounded-xl overflow-hidden border border-emerald-500/30 bg-[#06291d]">
+                    <SafeImage
+                      src={formFotoUrl}
+                      alt="Pratinjau Foto Paslon"
+                      fallbackInitial={`P${formNomor}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="text-center pt-1">
+                    <span className="text-xs font-bold text-white block truncate">
+                      {formNamaKetua || 'Nama Calon Ketua'}
+                    </span>
+                    <span className="text-[11px] font-semibold text-orange-300 block truncate">
+                      & {formNamaWakil || 'Nama Calon Wakil'}
+                    </span>
+                    <span className="text-[10px] text-emerald-300/70 block truncate mt-0.5">
+                      {formKelasKetua || 'Kelas Ketua'} · {formKelasWakil || 'Kelas Wakil'}
+                    </span>
+                  </div>
+                </div>
+
+                <PhotoGuidanceBox />
+              </div>
+            </div>
+          </form>
         </div>
       )}
 
-      {/* 3. Modal Konfirmasi Hapus Paslon (Dark Glassmorphism) */}
-      {deletingPaslon && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#031d14] rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-rose-500/40 text-center animate-in fade-in duration-150 text-white">
-            <div className="w-12 h-12 rounded-2xl bg-rose-950/80 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto mb-3 shadow-md">
-              <Trash2 className="w-6 h-6" />
-            </div>
-            <h3 className="text-base font-bold text-white mb-1">
-              Hapus Pasangan Calon?
-            </h3>
-            <p className="text-xs text-emerald-200/80 mb-5 leading-relaxed">
-              Anda akan menghapus <strong className="text-orange-400">Paslon No. {deletingPaslon.nomorUrut}</strong> ({deletingPaslon.namaKetua} & {deletingPaslon.namaWakil}). Data perolehan suara paslon ini juga akan terhapus.
-            </p>
-            <div className="grid grid-cols-2 gap-3">
+      {/* 2. SUBVIEW UBAH PASLON - HALAMAN PENUH */}
+      {subView === 'edit' && editingPaslon && (
+        <div className="bg-[#031d14]/95 backdrop-blur-2xl rounded-3xl w-full p-5 sm:p-8 shadow-2xl border border-emerald-500/30 text-white animate-in fade-in duration-200">
+          {/* Header Subview & Tombol Kembali */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-500/20 mb-6">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => setDeletingPaslon(null)}
-                className="py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 cursor-pointer"
+                onClick={() => {
+                  setSubView('list');
+                  setEditingPaslon(null);
+                }}
+                className="p-2.5 rounded-xl bg-[#021810] border border-emerald-500/30 text-emerald-300 hover:text-white hover:border-orange-500/50 transition-colors flex items-center gap-2 text-xs font-semibold cursor-pointer shadow-md"
               >
-                Batal
+                <ArrowLeft className="w-4 h-4" />
+                <span>Kembali ke Daftar Paslon</span>
               </button>
-              <button
-                type="button"
-                onClick={handleConfirmDelete}
-                className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs shadow-md cursor-pointer border border-rose-400/30"
-              >
-                Ya, Hapus
-              </button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-white">
+                    Ubah Data Paslon No. {editingPaslon.nomorUrut}
+                  </h3>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                    HALAMAN FORM PENUH
+                  </span>
+                </div>
+                <span className="text-xs text-emerald-300/80">
+                  Perbarui identitas kandidat, foto surat suara resmi, visi, atau misi program kerja
+                </span>
+              </div>
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSubView('list');
+                setEditingPaslon(null);
+              }}
+              className="self-start sm:self-auto px-4 py-2 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 hover:text-white transition-colors cursor-pointer"
+            >
+              Batal & Kembali
+            </button>
           </div>
+
+          <form onSubmit={handleSaveEdit}>
+            {/* TWO-COLUMN FULL-PAGE LAYOUT */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* LEFT COLUMN: Input Fields */}
+              <div className="lg:col-span-7 space-y-5">
+                {/* Foto URL Paslon */}
+                <div className="p-4 rounded-2xl bg-[#06291d]/80 border border-emerald-500/20 space-y-2">
+                  <label className="block text-[11px] font-bold text-orange-400 uppercase tracking-wider">
+                    Link URL Foto Paslon (Berdua / HTTPS)
+                  </label>
+                  <input
+                    type="url"
+                    value={editingPaslon.fotoUrl}
+                    onChange={(e) =>
+                      setEditingPaslon({ ...editingPaslon, fotoUrl: e.target.value })
+                    }
+                    className="w-full px-3 py-2.5 text-xs font-mono rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                    placeholder="https://..."
+                  />
+                </div>
+
+                {/* Ketua & Wakil */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#06291d]/80 border border-emerald-500/25 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block mb-2">
+                      Calon Ketua OSIS
+                    </span>
+                    <div className="space-y-2.5">
+                      <input
+                        type="text"
+                        value={editingPaslon.namaKetua}
+                        onChange={(e) =>
+                          setEditingPaslon({ ...editingPaslon, namaKetua: e.target.value })
+                        }
+                        placeholder="Nama Ketua"
+                        className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        value={editingPaslon.kelasKetua}
+                        onChange={(e) =>
+                          setEditingPaslon({ ...editingPaslon, kelasKetua: e.target.value })
+                        }
+                        placeholder="Kelas Ketua"
+                        className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[11px] font-bold text-orange-400 uppercase tracking-wider block mb-2">
+                      Calon Wakil Ketua OSIS
+                    </span>
+                    <div className="space-y-2.5">
+                      <input
+                        type="text"
+                        value={editingPaslon.namaWakil}
+                        onChange={(e) =>
+                          setEditingPaslon({ ...editingPaslon, namaWakil: e.target.value })
+                        }
+                        placeholder="Nama Wakil"
+                        className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      />
+                      <input
+                        type="text"
+                        value={editingPaslon.kelasWakil}
+                        onChange={(e) =>
+                          setEditingPaslon({ ...editingPaslon, kelasWakil: e.target.value })
+                        }
+                        placeholder="Kelas Wakil"
+                        className="w-full px-3.5 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#021810] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Visi */}
+                <div>
+                  <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider mb-1.5">
+                    Visi Paslon
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editingPaslon.visi}
+                    onChange={(e) =>
+                      setEditingPaslon({ ...editingPaslon, visi: e.target.value })
+                    }
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Misi */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-[11px] font-bold text-emerald-300 uppercase tracking-wider">
+                      Poin-Poin Misi Program Kerja
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => handleAddMissionField(true)}
+                      className="text-xs font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Tambah Butir Misi</span>
+                    </button>
+                  </div>
+                  <div className="space-y-2.5">
+                    {editingPaslon.misi.map((m, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-emerald-950 text-emerald-400 font-mono text-[11px] font-bold flex items-center justify-center shrink-0 border border-emerald-500/30">
+                          {idx + 1}
+                        </span>
+                        <input
+                          type="text"
+                          value={m}
+                          onChange={(e) => handleMissionChange(idx, e.target.value, true)}
+                          className="flex-1 px-3 py-2 text-xs rounded-xl border border-emerald-500/30 bg-[#06291d] text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                          placeholder={`Misi ${idx + 1}`}
+                        />
+                        {editingPaslon.misi.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMissionField(idx, true)}
+                            className="p-2 text-rose-400 hover:text-rose-300 rounded-lg cursor-pointer bg-rose-950/40 border border-rose-500/20"
+                            title="Hapus butir misi"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN: STICKY SIDEBAR ACTION DOCK */}
+              <div className="lg:col-span-5 bg-[#021810]/95 border border-emerald-500/25 rounded-2xl p-5 space-y-5 lg:sticky lg:top-4 shadow-xl">
+                <div className="flex items-center justify-between pb-2.5 border-b border-emerald-500/20">
+                  <span className="text-xs font-bold text-orange-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Panel Aksi Cepat</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-orange-300 bg-orange-950/80 px-2.5 py-0.5 rounded-full border border-orange-500/40">
+                    PASLON #{editingPaslon.nomorUrut}
+                  </span>
+                </div>
+
+                {/* Primary Save & Cancel Buttons Directly Accessible on Side */}
+                <div className="space-y-2.5">
+                  <button
+                    type="submit"
+                    className="w-full py-3.5 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40 transition-all hover:scale-[1.01]"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Simpan Perubahan</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubView('list');
+                      setEditingPaslon(null);
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/40 hover:text-white transition-colors cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                </div>
+
+                {/* Live Card Preview Box */}
+                <div className="p-3.5 bg-black/40 rounded-xl border border-emerald-500/20 space-y-2.5">
+                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
+                    Pratinjau Hasil Perubahan
+                  </span>
+                  <div className="w-full aspect-4/3 rounded-xl overflow-hidden border border-emerald-500/30 bg-[#06291d]">
+                    <SafeImage
+                      src={editingPaslon.fotoUrl}
+                      alt="Pratinjau Foto Paslon"
+                      fallbackInitial={`P${editingPaslon.nomorUrut}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="text-center pt-1">
+                    <span className="text-xs font-bold text-white block truncate">
+                      {editingPaslon.namaKetua} (Ketua)
+                    </span>
+                    <span className="text-[11px] font-semibold text-orange-300 block truncate">
+                      & {editingPaslon.namaWakil} (Wakil)
+                    </span>
+                    <span className="text-[10px] text-emerald-300/70 block truncate mt-0.5">
+                      {editingPaslon.kelasKetua} · {editingPaslon.kelasWakil}
+                    </span>
+                  </div>
+                </div>
+
+                <PhotoGuidanceBox />
+              </div>
+            </div>
+          </form>
         </div>
       )}
     </div>
