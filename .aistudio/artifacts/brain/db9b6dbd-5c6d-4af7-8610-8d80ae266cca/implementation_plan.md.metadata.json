@@ -1,6 +1,6 @@
 {
-  "summary":  "Rencana implementasi perlindungan kerahasiaan hasil suara paslon selama pemilihan berlangsung:\n- Menyembunyikan grafik batang dan rincian perolehan suara masing-masing paslon selama status pemilihan 'aktif', sementara metrik partisipasi dan total suara masuk tetap terbuka.\n- Menerapkan mekanisme intip hasil suara dengan PIN khusus 6 digit (default 789123 yang dapat diatur di menu Pengaturan).\n- Pembatasan durasi intip hasil suara selama tepat 2 menit (120 detik) dengan countdown timer HUD, serta kuota maksimal 2 kali per sesi pemilihan yang tersinkronisasi di Firestore untuk seluruh panitia.\n- Pembukaan otomatis hasil lengkap saat status pemilihan diubah menjadi 'ditutup'.",
-  "updatedAt":  "2026-11-08T14:22:37.491660404Z",
+  "summary":  "Rencana implementasi penghapusan label kredensial default pada halaman login admin dan penambahan fitur Manajemen Pengguna (ubah username, password, dan PIN khusus gerbang 5-digit) tersinkronisasi ke Firestore.",
+  "updatedAt":  "2026-11-10T23:05:44.617548349Z",
   "requestFeedback":  true,
   "userFacing":  true
 }

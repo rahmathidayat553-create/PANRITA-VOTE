@@ -413,7 +413,7 @@ export const AdminPemilihan: React.FC<AdminPemilihanProps> = ({
 
               <div>
                 <label className="block text-xs font-semibold text-emerald-200/80 uppercase tracking-wider mb-1.5">
-                  Token Khusus Admin / Panitia
+                  Kode Otorisasi Panitia
                 </label>
                 <input
                   type="text"
@@ -422,7 +422,7 @@ export const AdminPemilihan: React.FC<AdminPemilihanProps> = ({
                   className="w-full px-3.5 py-2.5 rounded-xl border border-emerald-500/30 font-mono text-sm uppercase font-bold text-orange-400 bg-[#02130c]/80 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 focus:outline-none"
                 />
                 <p className="text-[11px] text-emerald-300/60 mt-1">
-                  Ketik token ini pada bilik suara publik (default: 99999) untuk langsung membuka portal login panitia.
+                  Kode identifikasi panitia. Untuk mengganti username, password, atau PIN gerbang 5 digit bilik suara, gunakan menu <strong>Manajemen Pengguna</strong>.
                 </p>
               </div>
 

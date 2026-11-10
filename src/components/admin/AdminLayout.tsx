@@ -9,6 +9,7 @@ import {
   LogOut,
   Shield,
   ExternalLink,
+  UserCog,
 } from 'lucide-react';
 
 export type AdminMenuKey =
@@ -17,6 +18,7 @@ export type AdminMenuKey =
   | 'paslon'
   | 'dpt'
   | 'rekap'
+  | 'pengguna'
   | 'log';
 
 interface AdminLayoutProps {
@@ -33,6 +35,7 @@ const navItems: { key: AdminMenuKey; label: string; icon: React.FC<{ className?:
   { key: 'paslon', label: 'Pasangan Calon', icon: Users2 },
   { key: 'dpt', label: 'Daftar Pemilih', icon: ListChecks },
   { key: 'rekap', label: 'Rekapitulasi', icon: BarChart3 },
+  { key: 'pengguna', label: 'Manajemen Pengguna', icon: UserCog },
   { key: 'log', label: 'Log Aktivitas', icon: ScrollText },
 ];
 

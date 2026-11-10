@@ -44,6 +44,7 @@ import { AdminPaslon } from './components/admin/AdminPaslon';
 import { AdminDPT } from './components/admin/AdminDPT';
 import { AdminRekapitulasi } from './components/admin/AdminRekapitulasi';
 import { AdminLog } from './components/admin/AdminLog';
+import { AdminPengguna } from './components/admin/AdminPengguna';
 
 // Session Persistence Keys
 const SESSION_ROLE_KEY = 'panritavote_session_role';
@@ -89,7 +90,7 @@ export default function App() {
         localStorage.getItem(SESSION_ADMIN_MENU_KEY);
       if (
         saved &&
-        ['dashboard', 'pemilihan', 'paslon', 'dpt', 'rekap', 'log'].includes(saved)
+        ['dashboard', 'pemilihan', 'paslon', 'dpt', 'rekap', 'pengguna', 'log'].includes(saved)
       ) {
         return saved as AdminMenuKey;
       }
@@ -701,6 +702,7 @@ export default function App() {
             <AdminLoginPage
               logoUrl={pengaturan.logoUrl}
               sekolah={pengaturan.sekolah}
+              pengaturan={pengaturan}
               onLoginSuccess={handleAdminLoginSuccess}
               onBackToVoter={() => setVoterStep('token')}
               onShowToast={showToast}
@@ -775,6 +777,14 @@ export default function App() {
               pengaturan={pengaturan}
               onUnlockHasilSuara={handleUnlockHasilSuara}
               onLockHasilSuara={handleLockHasilSuara}
+              onShowToast={showToast}
+            />
+          )}
+
+          {adminMenu === 'pengguna' && (
+            <AdminPengguna
+              pengaturan={pengaturan}
+              onUpdatePengaturan={handleUpdatePengaturan}
               onShowToast={showToast}
             />
           )}

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Shield, KeyRound, User, AlertCircle, ArrowLeft, Lock, ShieldCheck } from 'lucide-react';
+import { Shield, KeyRound, User, AlertCircle, ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
 import { SafeImage } from '../SafeImage';
 import { ToastData } from '../Toast';
+import { PengaturanPemilihan } from '../../data/dummy';
 
 interface AdminLoginPageProps {
   logoUrl: string;
   sekolah: string;
+  pengaturan?: PengaturanPemilihan;
   onLoginSuccess: () => void;
   onBackToVoter: () => void;
   onShowToast?: (data: ToastData) => void;
@@ -14,12 +16,14 @@ interface AdminLoginPageProps {
 export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   logoUrl,
   sekolah,
+  pengaturan,
   onLoginSuccess,
   onBackToVoter,
   onShowToast,
 }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,13 +32,15 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
     setError(null);
     setIsLoading(true);
 
+    const validUsername = (pengaturan?.adminUsername || 'admin').trim();
+    const validPassword = (pengaturan?.adminPassword || 'admin123').trim();
+
     setTimeout(() => {
       setIsLoading(false);
-      // Valid credentials per specification: user: admin, pass: admin123
-      if (username.trim() === 'admin' && password === 'admin123') {
+      if (username.trim() === validUsername && password.trim() === validPassword) {
         onLoginSuccess();
       } else {
-        const msg = 'Username atau password admin salah. Silakan periksa kembali panduan kredensial.';
+        const msg = 'Username atau password admin salah. Silakan periksa kembali kredensial Anda.';
         setError(msg);
         onShowToast?.({
           type: 'error',
@@ -45,19 +51,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
         });
       }
     }, 250);
-  };
-
-  const handleFillCredentials = () => {
-    setUsername('admin');
-    setPassword('admin123');
-    setError(null);
-    onShowToast?.({
-      type: 'info',
-      title: 'Kredensial Panitia Dimuat',
-      message: 'Username "admin" dan password otorisasi berhasil disiapkan.',
-      code: '[SEC_CREDENTIAL_LOADED]',
-      duration: 2000,
-    });
   };
 
   return (
@@ -113,7 +106,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
                     setUsername(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="admin"
+                  placeholder="Masukkan username admin"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-emerald-500/30 bg-[#02130c]/80 text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 transition-all placeholder:text-emerald-700/60"
                   autoComplete="username"
                   autoFocus
@@ -132,17 +125,25 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
               <div className="relative">
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="admin123"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-emerald-500/30 bg-[#02130c]/80 text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 transition-all placeholder:text-emerald-700/60"
+                  placeholder="Masukkan password admin"
+                  className="w-full pl-10 pr-11 py-2.5 rounded-xl border border-emerald-500/30 bg-[#02130c]/80 text-white text-sm focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 transition-all placeholder:text-emerald-700/60"
                   autoComplete="current-password"
                 />
                 <KeyRound className="w-4 h-4 text-emerald-500/60 absolute left-3.5 top-3" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2.5 p-1 text-emerald-400 hover:text-orange-400 transition-colors cursor-pointer"
+                  title={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -171,28 +172,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
               )}
             </button>
           </form>
-
-          {/* Panduan Kredensial Panitia */}
-          <div className="mt-6 pt-5 border-t border-emerald-500/20">
-            <div className="flex items-center justify-between text-xs text-emerald-300/70 mb-2">
-              <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-orange-400" />
-                Kredensial Akses Panitia:
-              </span>
-              <button
-                type="button"
-                onClick={handleFillCredentials}
-                className="text-xs font-semibold text-orange-400 hover:text-orange-300 underline cursor-pointer"
-              >
-                Isi Kredensial
-              </button>
-            </div>
-            <div className="p-3 rounded-xl bg-[#02130c]/80 border border-emerald-500/25 font-mono text-xs text-emerald-200 flex items-center justify-between">
-              <span>user: <strong className="text-white">admin</strong></span>
-              <span className="text-emerald-700">|</span>
-              <span>pass: <strong className="text-white">admin123</strong></span>
-            </div>
-          </div>
         </div>
 
         <div className="text-center mt-6 text-xs text-emerald-300/60 font-mono">

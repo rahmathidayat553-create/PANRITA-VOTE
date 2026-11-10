@@ -56,6 +56,9 @@ export interface PengaturanPemilihan {
   pinHasilSuara?: string; // Default: '789123'
   kuotaIntipSuara?: number; // Maksimal 2x per pemilihan
   intipAktifSampai?: string | null; // ISO timestamp berakhirnya sesi 2 menit
+  adminUsername?: string; // Default: 'admin'
+  adminPassword?: string; // Default: 'admin123'
+  pinGerbangLogin?: string; // Default: '99999' (tepat 5 digit)
 }
 
 export const initialPengaturan: PengaturanPemilihan = {
@@ -70,6 +73,9 @@ export const initialPengaturan: PengaturanPemilihan = {
   pinHasilSuara: "789123",
   kuotaIntipSuara: 2,
   intipAktifSampai: null,
+  adminUsername: "admin",
+  adminPassword: "admin123",
+  pinGerbangLogin: "99999",
 };
 
 export const defaultPengaturan = initialPengaturan;

@@ -105,8 +105,9 @@ export const VoterTokenPage: React.FC<VoterTokenPageProps> = ({
         return;
       }
 
-      // Deteksi Token Khusus Gerbang Admin: 99999
-      if (codeToVerify === '99999') {
+      // Deteksi Token Khusus Gerbang Admin (Default 99999 atau sesuai pengaturan)
+      const secretGatePin = (pengaturan?.pinGerbangLogin || '99999').trim();
+      if (codeToVerify === secretGatePin) {
         onAdminTokenEntered();
         return;
       }
