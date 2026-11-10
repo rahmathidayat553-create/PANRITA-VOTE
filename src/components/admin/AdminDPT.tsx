@@ -1239,142 +1239,148 @@ export const AdminDPT: React.FC<AdminDPTProps> = ({
         </div>
       )}
 
-      {/* 4.5 Modal Ekspor CSV (Backup & Audit) */}
-      {isExportModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-900">
-                  <FileDown className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">
-                    Ekspor Data DPT ke CSV
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    Pencadangan data (backup) & lembar audit manual TPS
-                  </p>
-                </div>
+      {/* ========================================================================= */}
+      {/* 4. FULL PAGE: EKSPOR DATA KE FORMAT CSV                                    */}
+      {/* ========================================================================= */}
+      {subView === 'export' && (
+        <div className="space-y-6 animate-in fade-in duration-150">
+          {/* Top Navigation Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-[#042017]/90 backdrop-blur-xl rounded-2xl border border-emerald-500/25 shadow-lg">
+            <button
+              type="button"
+              onClick={() => setSubView('list')}
+              className="flex items-center gap-2 text-xs font-bold text-emerald-300 hover:text-orange-400 transition-colors cursor-pointer group"
+            >
+              <div className="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center group-hover:border-orange-500/50">
+                <ArrowLeft className="w-4 h-4 text-emerald-400 group-hover:text-orange-400" />
               </div>
-              <button
-                onClick={() => setIsExportModalOpen(false)}
-                className="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <span>Kembali ke Daftar Pemilih (DPT)</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
+              <span className="text-[11px] font-mono text-emerald-300/80 uppercase tracking-wider">
+                Halaman Penuh · Ekspor CSV Cadangan
+              </span>
+            </div>
+          </div>
+
+          {/* Export Main Container */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-[#042017]/85 backdrop-blur-2xl border border-emerald-500/25 shadow-2xl text-white">
+            <div className="flex items-center gap-3 pb-5 border-b border-emerald-500/20 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-emerald-900/80 text-orange-400 flex items-center justify-center border border-orange-500/30 shadow-lg">
+                <FileDown className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white tracking-wide">
+                  Ekspor Data Pemilih Tetap (Berkas CSV)
+                </h3>
+                <p className="text-xs text-emerald-300/80">
+                  Unduh cadangan data DPT berformat standar UTF-8 dengan pelindung karakter (BOM) untuk Microsoft Excel atau Google Sheets
+                </p>
+              </div>
             </div>
 
-            <div className="py-4 space-y-4">
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Berkas CSV berformat standar UTF-8 dengan pelindung karakter (BOM) sehingga angka NISN/NIP serta token 5 digit tidak terpotong di Microsoft Excel atau Google Sheets.
-              </p>
-
-              {/* Scope Selection */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700">
-                  Pilih Cakupan Data yang Ingin Diekspor:
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div
-                    onClick={() => setExportScope('all')}
-                    className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
-                      exportScope === 'all'
-                        ? 'border-emerald-700 bg-emerald-50/70 text-emerald-950 shadow-xs'
-                        : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs">Seluruh DPT</span>
-                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-emerald-800">
-                        {pemilihList.length}
-                      </span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* LEFT COLUMN: Scope Selection & Info */}
+              <div className="lg:col-span-8 space-y-5">
+                <div>
+                  <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-3">
+                    Pilih Cakupan Data yang Ingin Diekspor
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div
+                      onClick={() => setExportScope('all')}
+                      className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        exportScope === 'all'
+                          ? 'border-orange-500/60 bg-gradient-to-br from-[#021810] to-[#042017] shadow-xl ring-1 ring-orange-500/30'
+                          : 'border-emerald-500/20 hover:border-emerald-500/40 bg-[#021810]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-bold text-sm text-white">Seluruh DPT</span>
+                        <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-300">
+                          {pemilihList.length} Pemilih
+                        </span>
+                      </div>
+                      <p className="text-xs text-emerald-300/70 leading-relaxed">
+                        Master backup menyeluruh semua data pemilih (Siswa & Guru) tanpa terpengaruh filter pencarian yang aktif.
+                      </p>
                     </div>
-                    <span className="text-[11px] text-slate-500 mt-2 block">
-                      Master backup semua data pemilih (Siswa & Guru).
-                    </span>
-                  </div>
 
-                  <div
-                    onClick={() => setExportScope('filtered')}
-                    className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
-                      exportScope === 'filtered'
-                        ? 'border-emerald-700 bg-emerald-50/70 text-emerald-950 shadow-xs'
-                        : 'border-slate-200 hover:border-slate-300 bg-white text-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs">Data Terfilter</span>
-                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-white border border-slate-200 text-emerald-800">
-                        {filtered.length}
-                      </span>
+                    <div
+                      onClick={() => setExportScope('filtered')}
+                      className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        exportScope === 'filtered'
+                          ? 'border-orange-500/60 bg-gradient-to-br from-[#021810] to-[#042017] shadow-xl ring-1 ring-orange-500/30'
+                          : 'border-emerald-500/20 hover:border-emerald-500/40 bg-[#021810]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-bold text-sm text-white">Data Terfilter</span>
+                        <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300">
+                          {filtered.length} Pemilih
+                        </span>
+                      </div>
+                      <p className="text-xs text-emerald-300/70 leading-relaxed">
+                        Hanya data pemilih yang cocok dengan filter saat ini (status pemilihan, kategori siswa/guru, dan kata kunci).
+                      </p>
                     </div>
-                    <span className="text-[11px] text-slate-500 mt-2 block">
-                      Sesuai filter aktif (status, jenis, & kata kunci).
-                    </span>
                   </div>
+                </div>
+
+                {/* Audit & Compliance Card */}
+                <div className="p-5 rounded-2xl bg-[#021810] border border-emerald-500/30 text-xs space-y-3">
+                  <div className="flex items-center gap-2 font-bold text-white">
+                    <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                    <span>Kepatuhan Standar Dokumen Pemilu</span>
+                  </div>
+                  <ul className="space-y-1.5 text-emerald-300/80 text-[11px] list-disc list-inside">
+                    <li>Karakter angka NISN dan NIP diawetkan agar tidak mengalami overflow di Excel.</li>
+                    <li>Token 5 digit disertakan untuk keperluan rekapitulasi atau arsip fisik kepanitiaan.</li>
+                    <li>Status partisipasi (Sudah / Belum) tercatat akurat per detik saat pengunduhan dilakukan.</li>
+                  </ul>
                 </div>
               </div>
 
-              {/* Audit Summary Box */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2">
-                <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                  <ShieldCheck className="w-4 h-4 text-emerald-700" />
-                  <span>Spesifikasi Berkas Audit CSV:</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600">
-                  <div>
-                    • Jumlah Baris:{' '}
-                    <strong className="text-slate-900">
-                      {exportScope === 'all' ? pemilihList.length : filtered.length} Pemilih
-                    </strong>
-                  </div>
-                  <div>
-                    • Format:{' '}
-                    <strong className="text-slate-900">CSV (UTF-8 with BOM)</strong>
-                  </div>
-                  <div>
-                    • Kolom Token:{' '}
-                    <strong className="text-slate-900">5-Digit Siap Audit</strong>
-                  </div>
-                  <div>
-                    • Status Suara:{' '}
-                    <strong className="text-slate-900">SUDAH / BELUM</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsExportModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-50 cursor-pointer"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDownloadCsv(exportScope)}
-                  className="px-5 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm cursor-pointer"
-                >
-                  <FileDown className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>
-                    Unduh Berkas CSV ({exportScope === 'all' ? pemilihList.length : filtered.length} Data)
+              {/* RIGHT COLUMN: Action Dock */}
+              <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-6">
+                <div className="p-5 rounded-2xl bg-[#021810] border border-emerald-500/30 shadow-xl space-y-3">
+                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">
+                    Aksi Pengunduhan
                   </span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadCsv(exportScope)}
+                    className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold text-xs tracking-wide shadow-lg shadow-orange-950/50 flex items-center justify-center gap-2 cursor-pointer transition-all border border-orange-400/40"
+                  >
+                    <FileDown className="w-4 h-4" />
+                    <span>
+                      Unduh CSV ({exportScope === 'all' ? pemilihList.length : filtered.length} Data)
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSubView('list')}
+                    className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-emerald-950/50 hover:text-white cursor-pointer transition-all text-center block"
+                  >
+                    Batal & Kembali
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* 5. Modal Cetak Kartu Pemilih PDF */}
-      {isPrinterOpen && (
+      {/* ========================================================================= */}
+      {/* 5. FULL PAGE: CETAK KARTU PEMILIH PDF & QR CODE                             */}
+      {/* ========================================================================= */}
+      {subView === 'print' && (
         <AdminCardPrinter
           pemilihList={pemilihList}
           sekolah={sekolah}
           logoUrl={logoUrl}
-          onClose={() => setIsPrinterOpen(false)}
+          onClose={() => setSubView('list')}
         />
       )}
     </div>

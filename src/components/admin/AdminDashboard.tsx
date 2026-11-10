@@ -816,14 +816,75 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {kuotaIntip > 0 ? (
-                <button
-                  type="button"
-                  onClick={handleOpenPinModal}
-                  className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 active:from-orange-600 active:to-amber-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40"
-                >
-                  <Unlock className="w-4 h-4" />
-                  <span>Buka Kunci Sementara (2 Menit)</span>
-                </button>
+                !isPinModalOpen ? (
+                  <button
+                    type="button"
+                    onClick={handleOpenPinModal}
+                    className="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 active:from-orange-600 active:to-amber-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-orange-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer border border-orange-400/40"
+                  >
+                    <Unlock className="w-4 h-4" />
+                    <span>Buka Kunci Sementara (2 Menit)</span>
+                  </button>
+                ) : (
+                  <form
+                    onSubmit={handleSubmitPin}
+                    className={`space-y-3 pt-1 ${isShaking ? 'animate-earthquake' : ''}`}
+                  >
+                    <p className="text-[11px] text-emerald-200/90 leading-relaxed">
+                      Masukkan <strong className="text-orange-400">PIN 6 digit khusus</strong> untuk membuka suara selama 2 menit:
+                    </p>
+
+                    <input
+                      type="password"
+                      maxLength={6}
+                      autoFocus
+                      placeholder="6 Digit PIN"
+                      value={pinInput}
+                      onChange={(e) => {
+                        setPinInput(e.target.value.replace(/\D/g, '').slice(0, 6));
+                        if (pinError) setPinError(null);
+                      }}
+                      className="w-full px-4 py-2.5 text-center text-lg font-mono font-black tracking-widest rounded-xl border border-orange-500/40 focus:ring-2 focus:ring-orange-500 focus:outline-none bg-[#02130c] text-orange-400 shadow-inner"
+                    />
+
+                    {pinError && (
+                      <div className="p-2.5 rounded-xl bg-rose-950/70 border border-rose-500/40 text-rose-200 text-[11px] flex items-center gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                        <span>{pinError}</span>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsPinModalOpen(false);
+                          setPinError(null);
+                        }}
+                        className="py-2.5 px-3 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-[#02130c] cursor-pointer"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={pinInput.length !== 6 || isVerifying}
+                        className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold text-xs shadow-md disabled:opacity-40 flex items-center justify-center gap-1.5 cursor-pointer border border-orange-400/30"
+                      >
+                        {isVerifying ? (
+                          <>
+                            <div className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                            <span>Memverifikasi...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Unlock className="w-3.5 h-3.5" />
+                            <span>Buka Kunci</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                )
               ) : (
                 <div className="p-3 bg-rose-950/40 rounded-xl border border-rose-500/30 text-rose-300 text-[11px] font-medium leading-relaxed">
                   Batas kuota 2x intip hasil suara telah habis. Hasil resmi paslon akan dibuka otomatis setelah pemilihan resmi ditutup oleh panitia.
@@ -1041,118 +1102,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           )}
         </div>
       </div>
-
-      {/* MODAL INPUT PIN KHUSUS INTIP SUARA (Gaya Side-by-side / Form Menyamping) */}
-      {isPinModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div
-            className={`bg-[#042017]/95 rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-orange-500/40 animate-in fade-in duration-150 ${
-              isShaking ? 'animate-earthquake border-rose-500 shadow-[0_0_35px_rgba(244,63,94,0.4)]' : ''
-            }`}
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-emerald-500/20 mb-5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center border border-orange-400/40">
-                  <KeyRound className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">
-                    Verifikasi PIN Khusus Intip Suara
-                  </h3>
-                  <span className="text-[10px] font-mono text-orange-400">
-                    DURASI_AKTIF: 2 MENIT · KUOTA SISA: {kuotaIntip}/2 KALI
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsPinModalOpen(false)}
-                className="p-1.5 text-emerald-400 hover:text-white rounded-lg hover:bg-emerald-900/40 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmitPin} className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
-              {/* Kolom Kiri: Input 6 Digit PIN */}
-              <div className="md:col-span-7 space-y-4">
-                <p className="text-xs text-emerald-200/80 leading-relaxed">
-                  Masukkan <strong className="text-orange-400">PIN 6 digit khusus</strong> yang telah diatur oleh panitia untuk membuka hasil suara paslon selama 2 menit.
-                </p>
-
-                <div>
-                  <label className="block text-[11px] font-mono font-bold text-emerald-300 uppercase tracking-wider mb-2">
-                    PIN KHUSUS (6 DIGIT)
-                  </label>
-                  <input
-                    type="password"
-                    maxLength={6}
-                    autoFocus
-                    placeholder="Contoh: 789123"
-                    value={pinInput}
-                    onChange={(e) => {
-                      setPinInput(e.target.value.replace(/\D/g, '').slice(0, 6));
-                      if (pinError) setPinError(null);
-                    }}
-                    className="w-full px-4 py-3 text-center text-xl font-mono font-black tracking-widest rounded-xl border border-orange-500/40 focus:ring-2 focus:ring-orange-500 focus:outline-none bg-[#02130c] text-orange-400 placeholder:text-emerald-800"
-                  />
-                  <span className="text-[10px] font-mono text-emerald-400/70 block mt-1 text-center">
-                    PIN Default: 789123 (Dapat diubah di menu Pengaturan)
-                  </span>
-                </div>
-
-                {pinError && (
-                  <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                    <span>{pinError}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Kolom Kanan: Tombol Aksi Samping (Side Action Dock) */}
-              <div className="md:col-span-5 bg-[#021810] p-4 rounded-2xl border border-orange-500/25 flex flex-col justify-center space-y-3">
-                <span className="text-[10px] font-mono text-center uppercase tracking-widest text-emerald-400 font-bold block">
-                  AKSI PEMBUKAAN
-                </span>
-
-                <button
-                  type="submit"
-                  disabled={pinInput.length !== 6 || isVerifying}
-                  className={`w-full py-3 px-4 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    pinInput.length === 6 && !isVerifying
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white shadow-orange-950/40 border border-orange-400/40'
-                      : 'bg-[#02130c] text-emerald-700/50 border border-emerald-900/40 cursor-not-allowed'
-                  }`}
-                >
-                  {isVerifying ? (
-                    <>
-                      <div className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                      <span>Memverifikasi...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Unlock className="w-4 h-4" />
-                      <span>Buka Kunci (2 Menit)</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsPinModalOpen(false)}
-                  className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-[#02130c] cursor-pointer"
-                >
-                  Batal
-                </button>
-
-                <div className="p-2 bg-[#02130c]/70 rounded-lg text-[10px] text-emerald-400/80 text-center font-mono">
-                  Sisa kuota: {kuotaIntip} dari 2 kali
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

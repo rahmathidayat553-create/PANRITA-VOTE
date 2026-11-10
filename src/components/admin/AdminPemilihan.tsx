@@ -27,6 +27,7 @@ import {
   ShieldAlert,
   Layers,
   ArrowRight,
+  ArrowLeft,
   ShieldCheck,
 } from 'lucide-react';
 
@@ -805,106 +806,127 @@ export const AdminPemilihan: React.FC<AdminPemilihanProps> = ({
         </div>
       )}
 
-      {/* MODAL KONFIRMASI GANDA RESET (GAYA FORM MENYAMPING DENGAN SIDE ACTION DOCK) */}
+      {/* PANEL KONFIRMASI GANDA RESET - HALAMAN IN-FLOW PENUH (BEBAS MODAL FLOATING) */}
       {resetModalType && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#042017]/95 rounded-3xl max-w-2xl w-full p-6 shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-rose-500/30 animate-in fade-in duration-200">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-              {/* Kolom Kiri: Deskripsi & Input */}
-              <div className="md:col-span-7 space-y-3.5">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border ${
-                      resetModalType === 'votes'
-                        ? 'bg-amber-500/20 text-amber-400 border-amber-400/40'
-                        : 'bg-rose-500/20 text-rose-400 border-rose-400/40'
-                    }`}
-                  >
-                    <AlertTriangle className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-white">
-                      {resetModalType === 'votes'
-                        ? 'Konfirmasi Reset Hasil Suara'
-                        : 'Konfirmasi Reset Total Database'}
-                    </h3>
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-rose-400 font-bold block">
-                      [TINDAKAN_DESTRUKTIF // KRITIKAL]
-                    </span>
-                  </div>
-                </div>
-
-                <p className="text-xs text-emerald-200/80 leading-relaxed">
-                  {resetModalType === 'votes' ? (
-                    <>
-                      Seluruh perolehan suara paslon akan <strong className="text-white">dinolkan</strong> dan status{' '}
-                      <strong className="text-orange-400">{pemilihList.length} pemilih</strong> akan dikembalikan menjadi{' '}
-                      <em>"Belum Memilih"</em>.
-                    </>
-                  ) : (
-                    <>
-                      Tindakan ini akan <strong className="text-rose-400 font-bold">menghapus permanen</strong> seluruh{' '}
-                      <strong className="text-white">{paslonList.length} pasangan calon</strong> dan{' '}
-                      <strong className="text-white">{pemilihList.length} akun pemilih DPT</strong> dari Firestore.
-                    </>
-                  )}
-                </p>
-
-                <div className="p-3.5 bg-[#02130c]/80 border border-rose-500/30 rounded-2xl">
-                  <label className="block text-[11px] font-bold text-emerald-200 uppercase tracking-wider mb-1.5">
-                    Ketik kata <span className="text-rose-400 font-mono font-black">RESET</span> untuk melanjutkan:
-                  </label>
-                  <input
-                    type="text"
-                    autoFocus
-                    placeholder="Ketik RESET"
-                    value={confirmInput}
-                    onChange={(e) => setConfirmInput(e.target.value)}
-                    className="w-full px-3.5 py-2 text-center text-sm font-mono font-bold uppercase rounded-xl border border-rose-500/40 focus:ring-2 focus:ring-rose-500 focus:outline-none bg-[#02130c] text-white"
-                  />
-                </div>
+        <div className="rounded-3xl bg-[#042017]/95 p-6 sm:p-8 shadow-2xl border-2 border-rose-500/50 animate-in fade-in duration-200 text-white space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-rose-500/20">
+            <button
+              type="button"
+              disabled={isProcessingReset}
+              onClick={() => {
+                setResetModalType(null);
+                setConfirmInput('');
+              }}
+              className="flex items-center gap-2 text-xs font-bold text-rose-300 hover:text-white transition-colors cursor-pointer group"
+            >
+              <div className="w-7 h-7 rounded-lg bg-rose-950/80 border border-rose-500/30 flex items-center justify-center group-hover:border-rose-400">
+                <ArrowLeft className="w-4 h-4 text-rose-400 group-hover:text-white" />
               </div>
+              <span>Batalkan & Kembali ke Pengaturan</span>
+            </button>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-rose-400 font-bold px-2.5 py-0.5 rounded-full bg-rose-950/80 border border-rose-500/40">
+              [PANEL_KONFIRMASI_RESET // TINDAKAN_DESTRUKTIF]
+            </span>
+          </div>
 
-              {/* Kolom Kanan: Tombol Eksekusi di Bagian Samping (Side Dock) */}
-              <div className="md:col-span-5 bg-[#021810] p-4 rounded-2xl border border-rose-500/25 flex flex-col justify-center space-y-3">
-                <span className="text-[10px] font-mono text-center uppercase tracking-widest text-emerald-400 font-bold block">
-                  KONFIRMASI EKSEKUSI
-                </span>
-
-                <button
-                  type="button"
-                  disabled={confirmInput.trim().toUpperCase() !== 'RESET' || isProcessingReset}
-                  onClick={handleExecuteReset}
-                  className={`w-full py-3 px-4 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    confirmInput.trim().toUpperCase() === 'RESET' && !isProcessingReset
-                      ? resetModalType === 'votes'
-                        ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-amber-950/40 border border-amber-400/40'
-                        : 'bg-gradient-to-r from-rose-700 to-red-700 hover:from-rose-600 hover:to-red-600 text-white shadow-rose-950/40 border border-rose-400/40'
-                      : 'bg-[#02130c] text-emerald-700/50 border border-emerald-900/40 cursor-not-allowed'
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Kolom Kiri: Deskripsi & Input */}
+            <div className="lg:col-span-8 space-y-5">
+              <div className="flex items-center gap-3.5">
+                <div
+                  className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border shadow-lg ${
+                    resetModalType === 'votes'
+                      ? 'bg-amber-500/20 text-amber-400 border-amber-400/40 shadow-amber-950/40'
+                      : 'bg-rose-500/20 text-rose-400 border-rose-400/40 shadow-rose-950/40'
                   }`}
                 >
-                  {isProcessingReset ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Memproses Reset...</span>
-                    </>
-                  ) : (
-                    <span>Konfirmasi Eksekusi</span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  disabled={isProcessingReset}
-                  onClick={() => {
-                    setResetModalType(null);
-                    setConfirmInput('');
-                  }}
-                  className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-[#02130c] cursor-pointer"
-                >
-                  Batal
-                </button>
+                  <AlertTriangle className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">
+                    {resetModalType === 'votes'
+                      ? 'Konfirmasi Reset Perolehan Hasil Suara'
+                      : 'Konfirmasi Reset Total Database & Master DPT'}
+                  </h3>
+                  <p className="text-xs text-rose-300/80 mt-0.5">
+                    Tindakan ini permanen dan tidak dapat dibatalkan setelah dieksekusi
+                  </p>
+                </div>
               </div>
+
+              <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-xs text-emerald-200/90 leading-relaxed">
+                {resetModalType === 'votes' ? (
+                  <>
+                    Seluruh perolehan suara paslon akan <strong className="text-white">dinolkan</strong> dan status{' '}
+                    <strong className="text-orange-400">{pemilihList.length} pemilih</strong> akan dikembalikan menjadi{' '}
+                    <em>"Belum Memilih"</em>.
+                  </>
+                ) : (
+                  <>
+                    Tindakan ini akan <strong className="text-rose-400 font-bold">menghapus permanen</strong> seluruh{' '}
+                    <strong className="text-white">{paslonList.length} pasangan calon</strong> dan{' '}
+                    <strong className="text-white">{pemilihList.length} akun pemilih DPT</strong> dari Firestore.
+                  </>
+                )}
+              </div>
+
+              <div className="p-4 bg-[#02130c]/90 border border-rose-500/40 rounded-2xl space-y-2">
+                <label className="block text-xs font-bold text-emerald-200 uppercase tracking-wider">
+                  Ketik kata <span className="text-rose-400 font-mono font-black text-sm">RESET</span> untuk verifikasi keamanan:
+                </label>
+                <input
+                  type="text"
+                  autoFocus
+                  placeholder="Ketik RESET"
+                  value={confirmInput}
+                  onChange={(e) => setConfirmInput(e.target.value)}
+                  className="w-full px-4 py-3 text-center text-base font-mono font-bold uppercase rounded-xl border border-rose-500/50 focus:ring-2 focus:ring-rose-500 focus:outline-none bg-[#02130c] text-white tracking-widest shadow-inner"
+                />
+              </div>
+            </div>
+
+            {/* Kolom Kanan: Tombol Eksekusi di Bagian Samping (Side Dock) */}
+            <div className="lg:col-span-4 bg-[#021810] p-5 rounded-2xl border border-rose-500/30 flex flex-col justify-center space-y-3 lg:sticky lg:top-4 shadow-xl">
+              <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold block text-center">
+                PANEL EKSEKUSI SAMPING
+              </span>
+
+              <button
+                type="button"
+                disabled={confirmInput.trim().toUpperCase() !== 'RESET' || isProcessingReset}
+                onClick={handleExecuteReset}
+                className={`w-full py-3.5 px-4 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  confirmInput.trim().toUpperCase() === 'RESET' && !isProcessingReset
+                    ? resetModalType === 'votes'
+                      ? 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-amber-950/40 border border-amber-400/40'
+                      : 'bg-gradient-to-r from-rose-700 to-red-700 hover:from-rose-600 hover:to-red-600 text-white shadow-rose-950/40 border border-rose-400/40'
+                    : 'bg-[#02130c] text-emerald-700/50 border border-emerald-900/40 cursor-not-allowed'
+                }`}
+              >
+                {isProcessingReset ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Memproses Reset...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Eksekusi Reset Sekarang</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                disabled={isProcessingReset}
+                onClick={() => {
+                  setResetModalType(null);
+                  setConfirmInput('');
+                }}
+                className="w-full py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-[#02130c] hover:text-white cursor-pointer transition-colors"
+              >
+                Batal
+              </button>
             </div>
           </div>
         </div>

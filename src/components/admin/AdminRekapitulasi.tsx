@@ -219,21 +219,71 @@ export const AdminRekapitulasi: React.FC<AdminRekapitulasiProps> = ({
               </p>
             </div>
 
-            <div className="p-4 bg-[#02130c] rounded-2xl border border-emerald-500/25 max-w-sm w-full space-y-3 text-xs">
+            <div className={`p-4 sm:p-5 bg-[#02130c] rounded-2xl border border-emerald-500/25 max-w-md w-full space-y-3 text-xs ${isShaking ? 'animate-earthquake border-rose-500 shadow-[0_0_25px_rgba(244,63,94,0.3)]' : ''}`}>
               <div className="flex items-center justify-between text-emerald-200/80">
-                <span>Kesempatan Intip Panitia:</span>
+                <span className="flex items-center gap-1.5 font-medium">
+                  <KeyRound className="w-3.5 h-3.5 text-orange-400" />
+                  Kesempatan Intip Panitia:
+                </span>
                 <span className="font-mono font-bold text-orange-400">{kuotaIntip} / 2 Kali</span>
               </div>
 
               {kuotaIntip > 0 ? (
-                <button
-                  type="button"
-                  onClick={handleOpenPinModal}
-                  className="w-full py-2.5 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-orange-400/40"
-                >
-                  <Unlock className="w-3.5 h-3.5" />
-                  <span>Buka Kunci (PIN 6 Digit)</span>
-                </button>
+                !isPinModalOpen ? (
+                  <button
+                    type="button"
+                    onClick={handleOpenPinModal}
+                    className="w-full py-2.5 px-4 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-400 hover:to-amber-500 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-orange-400/40"
+                  >
+                    <Unlock className="w-3.5 h-3.5" />
+                    <span>Buka Kunci (PIN 6 Digit)</span>
+                  </button>
+                ) : (
+                  <form onSubmit={handleSubmitPin} className="space-y-3 pt-1">
+                    <p className="text-[11px] text-emerald-300/80">
+                      Masukkan PIN 6 digit panitia (Durasi buka: 2 menit):
+                    </p>
+                    <input
+                      type="password"
+                      maxLength={6}
+                      autoFocus
+                      placeholder="6 Digit PIN"
+                      value={pinInput}
+                      onChange={(e) => {
+                        setPinInput(e.target.value.replace(/\D/g, '').slice(0, 6));
+                        if (pinError) setPinError(null);
+                      }}
+                      className="w-full px-4 py-2.5 text-center text-lg font-mono font-black tracking-widest rounded-xl border border-orange-500/40 focus:ring-2 focus:ring-orange-500 bg-[#042017] text-orange-400"
+                    />
+
+                    {pinError && (
+                      <div className="p-2.5 bg-rose-950/60 rounded-xl border border-rose-500/40 text-rose-200 text-[11px] flex items-start gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                        <span>{pinError}</span>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsPinModalOpen(false);
+                          setPinError(null);
+                        }}
+                        className="py-2 px-3 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-[#042017] cursor-pointer"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={pinInput.length !== 6 || isVerifying}
+                        className="py-2 px-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold text-xs shadow-md disabled:opacity-40 cursor-pointer"
+                      >
+                        {isVerifying ? 'Memverifikasi...' : 'Buka Kunci'}
+                      </button>
+                    </div>
+                  </form>
+                )
               ) : (
                 <div className="p-2 bg-rose-950/40 border border-rose-500/30 rounded-lg text-rose-300 text-[11px]">
                   Batas kuota 2x habis. Hasil akan terbuka setelah pemilihan ditutup.
@@ -320,76 +370,6 @@ export const AdminRekapitulasi: React.FC<AdminRekapitulasiProps> = ({
           <strong className="text-amber-300">Perhatian Panitia:</strong> Sesuai ketentuan, data perolehan suara masing-masing paslon bersifat tertutup selama masa pencoblosan dan hanya dipublikasikan secara resmi setelah waktu pemungutan suara ditutup oleh pihak sekolah.
         </div>
       </div>
-
-      {/* Modal Input PIN di Halaman Rekapitulasi */}
-      {isPinModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div
-            className={`bg-[#042017]/95 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-orange-500/40 animate-in fade-in duration-150 ${
-              isShaking ? 'animate-earthquake border-rose-500' : ''
-            }`}
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-emerald-500/20 mb-4">
-              <div className="flex items-center gap-2">
-                <KeyRound className="w-5 h-5 text-orange-400" />
-                <h3 className="text-sm font-bold text-white">Masukkan PIN Khusus (6 Digit)</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsPinModalOpen(false)}
-                className="p-1 text-emerald-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmitPin} className="space-y-4">
-              <p className="text-xs text-emerald-200/80">
-                Akses intip hasil rekapitulasi akan terbuka selama 2 menit. Sisa kuota: <strong className="text-orange-400">{kuotaIntip} kali</strong>.
-              </p>
-
-              <div>
-                <input
-                  type="password"
-                  maxLength={6}
-                  autoFocus
-                  placeholder="6 Digit PIN"
-                  value={pinInput}
-                  onChange={(e) => {
-                    setPinInput(e.target.value.replace(/\D/g, '').slice(0, 6));
-                    if (pinError) setPinError(null);
-                  }}
-                  className="w-full px-4 py-3 text-center text-xl font-mono font-black tracking-widest rounded-xl border border-orange-500/40 focus:ring-2 focus:ring-orange-500 bg-[#02130c] text-orange-400"
-                />
-              </div>
-
-              {pinError && (
-                <div className="p-3 bg-rose-950/60 rounded-xl border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <span>{pinError}</span>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsPinModalOpen(false)}
-                  className="py-2.5 px-4 rounded-xl border border-emerald-500/30 text-xs font-semibold text-emerald-200 hover:bg-[#02130c]"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={pinInput.length !== 6 || isVerifying}
-                  className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold text-xs shadow-md disabled:opacity-40"
-                >
-                  {isVerifying ? 'Memverifikasi...' : 'Buka Kunci'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
